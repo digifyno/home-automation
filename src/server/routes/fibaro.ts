@@ -12,7 +12,7 @@ interface ActionBody {
   value?: number | boolean | string;
 }
 
-function validateActionBody(action: string, body: unknown): ActionBody | null {
+export function validateActionBody(action: string, body: unknown): ActionBody | null {
   if (body === null || typeof body !== 'object' || Array.isArray(body)) return null;
   const b = body as Record<string, unknown>;
 
