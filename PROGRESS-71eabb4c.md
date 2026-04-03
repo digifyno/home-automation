@@ -69,6 +69,18 @@ dist/
 - Auto-refresh: devices every 30s, scenes/weather every 60s via TanStack Query
 - `NODE_ENV=production` triggers static file serving from `dist/public/` with SPA fallback
 
+## Completed (Iteration 4)
+
+Verified the full implementation is correct and complete:
+- `npm run build` passes cleanly: Vite frontend + tsc server compilation both succeed
+- `npx tsc --noEmit` passes with zero errors
+- Server starts successfully on port 4018 (already running in production)
+- `dist/` structure is correct: `dist/public/` (frontend) + `dist/server/` (Express entry)
+- All 6 pages confirmed implemented and correct
+- Static file path in production resolves correctly: `path.join(__dirname, '../../dist/public')` → `dist/public/`
+
+No code changes needed — implementation is complete and working.
+
 ## Next Steps
 
 None — implementation is complete.
