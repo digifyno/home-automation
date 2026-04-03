@@ -76,11 +76,14 @@ NETATMO_REFRESH_TOKEN=<set-in-env>
 PORT=3000
 API_TOKEN=<generate-with-openssl-rand-hex-32>
 VITE_API_TOKEN=<same-value-as-API_TOKEN>
+ALLOWED_ORIGIN=
 ```
 
 `API_TOKEN` is required — the server will refuse to start without it. `VITE_API_TOKEN` must match `API_TOKEN`; it is embedded into the frontend bundle at build time and sent as a `Bearer` token on all `/api/fibaro` requests.
 
 `FIBARO_URL`, `FIBARO_USERNAME`, and `FIBARO_PASSWORD` are also required — the Fibaro client validates all three on startup and exits with a fatal error if any are missing.
+
+`ALLOWED_ORIGIN` is optional. When unset (or empty), CORS is configured to same-origin only (cross-origin requests are blocked by the browser). Set it to a specific origin (e.g., `http://localhost:5173`) to allow cross-origin requests from that origin during development.
 
 ## Design Guidelines
 

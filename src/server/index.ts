@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express, { type Request, type Response, type NextFunction } from 'express';
+import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fibaroRouter from './routes/fibaro.js';
@@ -23,6 +24,11 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN ?? false,
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Authorization', 'Content-Type'],
+}));
 app.use(express.json());
 
 // API routes
