@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useScenes, useSceneExecute } from '../hooks/useFibaro.ts';
 import { PlayCircle, Loader2 } from 'lucide-react';
 
 export default function Scenes() {
   const { data: scenes = [], isLoading } = useScenes();
   const execute = useSceneExecute();
+  const [pendingScenes, setPendingScenes] = useState<Set<number>>(new Set());
+
+  const handleExecute = (id: number) => {
+    setPendingScenes(prev => new Set(prev).add(id));
+    execute.mutate(id, {
+      onSettled: () => {
+        setPendingScenes(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -34,11 +48,11 @@ export default function Scenes() {
               <p className="font-medium text-white">{scene.name}</p>
             </div>
             <button
-              onClick={() => execute.mutate(scene.id)}
-              disabled={execute.isPending}
+              onClick={() => handleExecute(scene.id)}
+              disabled={pendingScenes.has(scene.id)}
               className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
-              {execute.isPending ? <Loader2 size={16} className="animate-spin" /> : <PlayCircle size={16} />}
+              {pendingScenes.has(scene.id) ? <Loader2 size={16} className="animate-spin" /> : <PlayCircle size={16} />}
               Run Scene
             </button>
           </div>
