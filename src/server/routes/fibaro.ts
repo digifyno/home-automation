@@ -3,6 +3,17 @@ import { cachedGet, fibaroClient, invalidateCache } from '../integrations/fibaro
 
 const router = Router();
 
+const ALLOWED_ACTIONS = new Set([
+  'turnOn', 'turnOff', 'setValue', 'open', 'close',
+  'toggle', 'setBrightness', 'setColor',
+]);
+
+function parseDeviceId(raw: string): number | null {
+  const id = parseInt(raw, 10);
+  if (isNaN(id) || id <= 0 || id.toString() !== raw) return null;
+  return id;
+}
+
 router.get('/rooms', async (_req, res) => {
   try {
     const data = await cachedGet('/api/rooms');
@@ -24,8 +35,13 @@ router.get('/devices', async (_req, res) => {
 });
 
 router.get('/devices/:id', async (req, res) => {
+  const deviceId = parseDeviceId(req.params.id);
+  if (deviceId === null) {
+    res.status(400).json({ error: 'Invalid device id' });
+    return;
+  }
   try {
-    const response = await fibaroClient.get(`/api/devices/${req.params.id}`);
+    const response = await fibaroClient.get(`/api/devices/${deviceId}`);
     res.json(response.data);
   } catch (err) {
     console.error('Fibaro device error:', err);
@@ -34,9 +50,18 @@ router.get('/devices/:id', async (req, res) => {
 });
 
 router.post('/devices/:id/action/:action', async (req, res) => {
+  const deviceId = parseDeviceId(req.params.id);
+  if (deviceId === null) {
+    res.status(400).json({ error: 'Invalid device id' });
+    return;
+  }
+  const { action } = req.params;
+  if (!ALLOWED_ACTIONS.has(action)) {
+    res.status(400).json({ error: `Unknown action: ${action}` });
+    return;
+  }
   try {
-    const { id, action } = req.params;
-    const response = await fibaroClient.post(`/api/devices/${id}/action/${action}`, req.body);
+    const response = await fibaroClient.post(`/api/devices/${deviceId}/action/${action}`, req.body);
     invalidateCache('/api/devices');
     res.json(response.data);
   } catch (err) {
@@ -56,8 +81,13 @@ router.get('/scenes', async (_req, res) => {
 });
 
 router.post('/scenes/:id/execute', async (req, res) => {
+  const sceneId = parseDeviceId(req.params.id);
+  if (sceneId === null) {
+    res.status(400).json({ error: 'Invalid scene id' });
+    return;
+  }
   try {
-    const response = await fibaroClient.post(`/api/scenes/${req.params.id}/action/start`);
+    const response = await fibaroClient.post(`/api/scenes/${sceneId}/action/start`);
     invalidateCache('/api/scenes');
     res.json(response.data);
   } catch (err) {
