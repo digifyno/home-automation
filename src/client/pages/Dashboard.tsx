@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useDevices, useRooms, useWeather, useScenes } from '../hooks/useFibaro.ts';
 import { categorizeDevice } from '../../shared/types.ts';
 import { Lightbulb, Thermometer, Shield, Cloud, PlayCircle, AlertTriangle, Zap } from 'lucide-react';
@@ -30,29 +30,36 @@ export default function Dashboard() {
   const { data: weather } = useWeather();
   const { data: scenes = [] } = useScenes();
 
-  const lightsOn = devices.filter(d => {
-    const cat = categorizeDevice(d.type);
-    return (cat === 'light' || cat === 'dimmer') && (d.properties.value === true || d.properties.value === 1);
-  }).length;
+  const stats = useMemo(() => {
+    const categories = devices.map(d => ({ device: d, cat: categorizeDevice(d.type) }));
+    const lights = categories.filter(({ cat }) => cat === 'light' || cat === 'dimmer');
+    const lightsOn = lights.filter(({ device: d }) => d.properties.value === true || d.properties.value === 1).length;
+    const totalLights = lights.length;
+    const safetyAlerts = categories.filter(({ cat, device: d }) =>
+      cat === 'safety' && (d.properties.value === true || d.properties.value === 1)
+    ).length;
+    const offlineDevices = devices.filter(d => d.properties.dead).length;
+    const totalPower = devices.reduce((sum, d) => sum + (d.properties.power ?? 0), 0);
+    const thermostats = categories.filter(({ cat }) => cat === 'thermostat').map(({ device }) => device);
+    const avgTemp = thermostats.length > 0
+      ? (thermostats.reduce((s, d) => s + (typeof d.properties.value === 'number' ? d.properties.value : 0), 0) / thermostats.length).toFixed(1)
+      : '--';
+    return { lightsOn, totalLights, safetyAlerts, offlineDevices, totalPower, thermostats, avgTemp };
+  }, [devices]);
 
-  const totalLights = devices.filter(d => {
-    const cat = categorizeDevice(d.type);
-    return cat === 'light' || cat === 'dimmer';
-  }).length;
+  const { lightsOn, totalLights, safetyAlerts, offlineDevices, totalPower, thermostats, avgTemp } = stats;
 
-  const safetyAlerts = devices.filter(d => {
-    const cat = categorizeDevice(d.type);
-    return cat === 'safety' && (d.properties.value === true || d.properties.value === 1);
-  }).length;
-
-  const offlineDevices = devices.filter(d => d.properties.dead).length;
-
-  const totalPower = devices.reduce((sum, d) => sum + (d.properties.power ?? 0), 0);
-
-  const thermostats = devices.filter(d => categorizeDevice(d.type) === 'thermostat');
-  const avgTemp = thermostats.length > 0
-    ? (thermostats.reduce((s, d) => s + (typeof d.properties.value === 'number' ? d.properties.value : 0), 0) / thermostats.length).toFixed(1)
-    : '--';
+  const roomStats = useMemo(() =>
+    rooms.map(room => {
+      const roomDevices = devices.filter(d => d.roomID === room.id);
+      const roomLightsOn = roomDevices.filter(d => {
+        const cat = categorizeDevice(d.type);
+        return (cat === 'light' || cat === 'dimmer') && (d.properties.value === true || d.properties.value === 1);
+      }).length;
+      const roomTemp = roomDevices.find(d => categorizeDevice(d.type) === 'thermostat');
+      return { room, roomDevices, roomLightsOn, roomTemp };
+    }),
+  [rooms, devices]);
 
   if (loadingDevices) {
     return (
@@ -138,15 +145,7 @@ export default function Dashboard() {
       {/* Rooms overview */}
       <h3 className="text-lg font-semibold text-white mb-4">Rooms</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {rooms.map(room => {
-          const roomDevices = devices.filter(d => d.roomID === room.id);
-          const roomLightsOn = roomDevices.filter(d => {
-            const cat = categorizeDevice(d.type);
-            return (cat === 'light' || cat === 'dimmer') && (d.properties.value === true || d.properties.value === 1);
-          }).length;
-          const roomTemp = roomDevices.find(d => categorizeDevice(d.type) === 'thermostat');
-
-          return (
+        {roomStats.map(({ room, roomDevices, roomLightsOn, roomTemp }) => (
             <div key={room.id} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-medium text-white">{room.name}</h4>
@@ -172,8 +171,7 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-          );
-        })}
+        ))}
       </div>
     </div>
   );
