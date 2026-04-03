@@ -69,6 +69,10 @@ dist/
 - Auto-refresh: devices every 30s, scenes/weather every 60s via TanStack Query
 - `NODE_ENV=production` triggers static file serving from `dist/public/` with SPA fallback
 
+## Completed (Iteration 7)
+
+Verified build still passes cleanly (`npm run build` succeeds with no errors). No code changes needed — implementation is complete.
+
 ## Completed (Iteration 4)
 
 Verified the full implementation is correct and complete:
