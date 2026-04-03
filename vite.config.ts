@@ -6,5 +6,16 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   root: 'src/client',
   build: { outDir: '../../dist/public', emptyOutDir: true },
-  server: { proxy: { '/api': 'http://localhost:4018' } }
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4018',
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Authorization', `Bearer ${process.env.VITE_API_TOKEN}`);
+          });
+        },
+      },
+    },
+  }
 });

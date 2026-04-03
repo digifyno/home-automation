@@ -74,7 +74,11 @@ NETATMO_CLIENT_ID=<set-in-env>
 NETATMO_CLIENT_SECRET=<set-in-env>
 NETATMO_REFRESH_TOKEN=<set-in-env>
 PORT=3000
+API_TOKEN=<generate-with-openssl-rand-hex-32>
+VITE_API_TOKEN=<same-value-as-API_TOKEN>
 ```
+
+`API_TOKEN` is required — the server will refuse to start without it. `VITE_API_TOKEN` must match `API_TOKEN`; it is embedded into the frontend bundle at build time and sent as a `Bearer` token on all `/api/fibaro` requests.
 
 ## Design Guidelines
 
