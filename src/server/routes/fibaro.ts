@@ -8,6 +8,33 @@ const ALLOWED_ACTIONS = new Set([
   'toggle', 'setBrightness', 'setColor',
 ]);
 
+interface ActionBody {
+  value?: number | boolean | string;
+}
+
+function validateActionBody(action: string, body: unknown): ActionBody | null {
+  if (body === null || typeof body !== 'object' || Array.isArray(body)) return null;
+  const b = body as Record<string, unknown>;
+
+  // Actions that require a numeric value
+  if (action === 'setValue' || action === 'setBrightness') {
+    if (b.value === undefined) return null;
+    if (typeof b.value !== 'number') return null;
+    if (b.value < 0 || b.value > 99) return null;
+    return { value: b.value };
+  }
+
+  // setColor expects a string like 'R,G,B,W'
+  if (action === 'setColor') {
+    if (typeof b.value !== 'string') return null;
+    if (!/^\d{1,3},\d{1,3},\d{1,3},\d{1,3}$/.test(b.value)) return null;
+    return { value: b.value };
+  }
+
+  // Binary actions: turnOn, turnOff, toggle, open, close — no body needed
+  return {};
+}
+
 export function parseDeviceId(raw: string): number | null {
   const id = parseInt(raw, 10);
   if (isNaN(id) || id <= 0 || id.toString() !== raw) return null;
@@ -60,8 +87,13 @@ router.post('/devices/:id/action/:action', async (req, res) => {
     res.status(400).json({ error: `Unknown action: ${action}` });
     return;
   }
+  const validatedBody = validateActionBody(action, req.body);
+  if (validatedBody === null) {
+    res.status(400).json({ error: 'Invalid action body' });
+    return;
+  }
   try {
-    const response = await fibaroClient.post(`/api/devices/${deviceId}/action/${action}`, req.body);
+    const response = await fibaroClient.post(`/api/devices/${deviceId}/action/${action}`, validatedBody);
     invalidateCache('/api/devices');
     res.json(response.data);
   } catch (err) {
