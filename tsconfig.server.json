@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/server",
+    "jsx": "preserve",
+    "noEmit": false,
+    "allowImportingTsExtensions": false
+  },
+  "include": ["src/server/**/*", "src/shared/**/*"],
+  "exclude": ["node_modules", "dist", "src/client/**/*"]
+}
