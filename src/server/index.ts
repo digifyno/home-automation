@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fibaroRouter from './routes/fibaro.js';
+import { fibaroClient } from './integrations/fibaro/client.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -35,8 +36,13 @@ app.use(express.json());
 app.use('/api/fibaro', requireAuth);
 app.use('/api/fibaro', fibaroRouter);
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (_req, res) => {
+  try {
+    await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
+    res.json({ status: 'ok', fibaro: 'reachable', timestamp: new Date().toISOString() });
+  } catch {
+    res.status(503).json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
+  }
 });
 
 // Serve static files in production
