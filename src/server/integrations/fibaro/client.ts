@@ -1,8 +1,18 @@
 import axios from 'axios';
 
-const fibaroBaseUrl = process.env.FIBARO_URL || 'http://192.168.1.35';
-const username = process.env.FIBARO_USERNAME || '';
-const password = process.env.FIBARO_PASSWORD || '';
+const fibaroBaseUrl = process.env.FIBARO_URL;
+const username = process.env.FIBARO_USERNAME;
+const password = process.env.FIBARO_PASSWORD;
+
+if (!fibaroBaseUrl || !username || !password) {
+  const missing = [
+    !fibaroBaseUrl && 'FIBARO_URL',
+    !username && 'FIBARO_USERNAME',
+    !password && 'FIBARO_PASSWORD',
+  ].filter(Boolean).join(', ');
+  console.error(`FATAL: Missing required environment variables: ${missing}`);
+  process.exit(1);
+}
 
 export const fibaroClient = axios.create({
   baseURL: fibaroBaseUrl,
