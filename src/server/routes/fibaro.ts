@@ -28,6 +28,8 @@ export function validateActionBody(action: string, body: unknown): ActionBody | 
   if (action === 'setColor') {
     if (typeof b.value !== 'string') return null;
     if (!/^\d{1,3},\d{1,3},\d{1,3},\d{1,3}$/.test(b.value)) return null;
+    const parts = b.value.split(',').map(Number);
+    if (parts.some(p => p < 0 || p > 255)) return null;
     return { value: b.value };
   }
 

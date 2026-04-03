@@ -102,6 +102,22 @@ describe('validateActionBody', () => {
     it('returns null for components with >3 digits', () => {
       expect(validateActionBody('setColor', { value: '1000,0,0,0' })).toBeNull();
     });
+
+    it('returns null when a component is 999 (out of 0-255 range)', () => {
+      expect(validateActionBody('setColor', { value: '999,0,0,0' })).toBeNull();
+    });
+
+    it('returns null when a component is 256 (just over max)', () => {
+      expect(validateActionBody('setColor', { value: '256,0,0,0' })).toBeNull();
+    });
+
+    it('returns { value: "0,0,0,0" } for all-zero RGBW', () => {
+      expect(validateActionBody('setColor', { value: '0,0,0,0' })).toEqual({ value: '0,0,0,0' });
+    });
+
+    it('returns { value: "255,255,255,255" } for all-max RGBW', () => {
+      expect(validateActionBody('setColor', { value: '255,255,255,255' })).toEqual({ value: '255,255,255,255' });
+    });
   });
 
   describe('binary actions', () => {
