@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently 'tsx watch src/server/index.ts' 'vite'",
-    "build": "vite build && rm -rf dist/server dist/shared && tsc --project tsconfig.server.json",
+    "build": "vite build",
+    "build:server": "tsc --project tsconfig.server.json",
     "start": "NODE_ENV=production node dist/server/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
