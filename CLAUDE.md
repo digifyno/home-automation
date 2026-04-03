@@ -44,7 +44,7 @@ src/
 
 ### Fibaro HC3
 
-- **URL**: `http://127.0.0.1:8035` (proxied from the local network HC3 controller)
+- **URL**: `http://192.168.1.35` (routed via Tailscale subnet routing through rsiw1)
 - **Auth**: Basic auth using environment variables `FIBARO_USERNAME` and `FIBARO_PASSWORD`
 - **API Docs**: Fibaro HC3 uses a REST API. Key endpoints:
   - `GET /api/devices` - List all devices
@@ -67,7 +67,7 @@ src/
 Create a `.env` file (never commit this):
 
 ```
-FIBARO_URL=http://127.0.0.1:8035
+FIBARO_URL=http://192.168.1.35
 FIBARO_USERNAME=admin
 FIBARO_PASSWORD=<set-in-env>
 NETATMO_CLIENT_ID=<set-in-env>
