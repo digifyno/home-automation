@@ -8,7 +8,7 @@ const ALLOWED_ACTIONS = new Set([
   'toggle', 'setBrightness', 'setColor',
 ]);
 
-function parseDeviceId(raw: string): number | null {
+export function parseDeviceId(raw: string): number | null {
   const id = parseInt(raw, 10);
   if (isNaN(id) || id <= 0 || id.toString() !== raw) return null;
   return id;
