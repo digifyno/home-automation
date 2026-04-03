@@ -80,6 +80,8 @@ VITE_API_TOKEN=<same-value-as-API_TOKEN>
 
 `API_TOKEN` is required — the server will refuse to start without it. `VITE_API_TOKEN` must match `API_TOKEN`; it is embedded into the frontend bundle at build time and sent as a `Bearer` token on all `/api/fibaro` requests.
 
+`FIBARO_URL`, `FIBARO_USERNAME`, and `FIBARO_PASSWORD` are also required — the Fibaro client validates all three on startup and exits with a fatal error if any are missing.
+
 ## Design Guidelines
 
 - **Modern and clean**: Use a dark theme with accent colors for status indicators
