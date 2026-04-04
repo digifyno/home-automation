@@ -166,3 +166,126 @@ describe('POST /api/fibaro/scenes/:id/execute', () => {
     expect(res.body).toEqual({ result: 'started' });
   });
 });
+
+describe('GET /api/fibaro/rooms', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+    invalidateCache('/api/rooms');
+  });
+
+  it('returns 200 with room data when Fibaro responds', async () => {
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Living Room' }] });
+    const res = await request(app)
+      .get('/api/fibaro/rooms')
+      .set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([{ id: 1, name: 'Living Room' }]);
+  });
+
+  it('returns 502 when Fibaro throws', async () => {
+    mockGet.mockRejectedValueOnce(new Error('connection refused'));
+    const res = await request(app)
+      .get('/api/fibaro/rooms')
+      .set(AUTH);
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ error: 'Failed to fetch rooms from Fibaro' });
+  });
+});
+
+describe('GET /api/fibaro/devices/:id', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+  });
+
+  it('returns 200 with device data for a valid numeric ID', async () => {
+    mockGet.mockResolvedValueOnce({ data: { id: 42, name: 'Lamp' } });
+    const res = await request(app)
+      .get('/api/fibaro/devices/42')
+      .set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ id: 42, name: 'Lamp' });
+  });
+
+  it('returns 400 for a non-numeric device ID', async () => {
+    const res = await request(app)
+      .get('/api/fibaro/devices/abc')
+      .set(AUTH);
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid device id' });
+  });
+
+  it('returns 400 for device ID 0', async () => {
+    const res = await request(app)
+      .get('/api/fibaro/devices/0')
+      .set(AUTH);
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid device id' });
+  });
+
+  it('returns 400 for a negative device ID', async () => {
+    const res = await request(app)
+      .get('/api/fibaro/devices/-5')
+      .set(AUTH);
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid device id' });
+  });
+
+  it('returns 502 when Fibaro throws', async () => {
+    mockGet.mockRejectedValueOnce(new Error('timeout'));
+    const res = await request(app)
+      .get('/api/fibaro/devices/10')
+      .set(AUTH);
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ error: 'Failed to fetch device from Fibaro' });
+  });
+});
+
+describe('GET /api/fibaro/weather', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+    invalidateCache('/api/weather');
+  });
+
+  it('returns 200 with weather data when Fibaro responds', async () => {
+    mockGet.mockResolvedValueOnce({ data: { temperature: 21.5 } });
+    const res = await request(app)
+      .get('/api/fibaro/weather')
+      .set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ temperature: 21.5 });
+  });
+
+  it('returns 502 when Fibaro throws', async () => {
+    mockGet.mockRejectedValueOnce(new Error('fibaro unreachable'));
+    const res = await request(app)
+      .get('/api/fibaro/weather')
+      .set(AUTH);
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ error: 'Failed to fetch weather from Fibaro' });
+  });
+});
+
+describe('GET /api/fibaro/energy', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+    invalidateCache('/api/energyDevices');
+  });
+
+  it('returns 200 with energy data when Fibaro responds', async () => {
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, power: 100 }] });
+    const res = await request(app)
+      .get('/api/fibaro/energy')
+      .set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([{ id: 1, power: 100 }]);
+  });
+
+  it('returns 502 when Fibaro throws', async () => {
+    mockGet.mockRejectedValueOnce(new Error('energy endpoint down'));
+    const res = await request(app)
+      .get('/api/fibaro/energy')
+      .set(AUTH);
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ error: 'Failed to fetch energy data from Fibaro' });
+  });
+});
