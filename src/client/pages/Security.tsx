@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDevices, useRooms } from '../hooks/useFibaro.ts';
-import { categorizeDevice } from '../../shared/types.ts';
+import { categorizeDevice, isDeviceOn } from '../../shared/types.ts';
 import { Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function Security() {
@@ -12,7 +12,7 @@ export default function Security() {
     return cat === 'safety' || cat === 'sensor';
   });
 
-  const alerts = safetyDevices.filter(d => d.properties.value === true || d.properties.value === 1);
+  const alerts = safetyDevices.filter(d => isDeviceOn(d));
   const tampered = safetyDevices.filter(d => d.properties.tampered);
 
   if (isLoading) {

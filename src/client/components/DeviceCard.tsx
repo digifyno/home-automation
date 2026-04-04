@@ -1,6 +1,6 @@
 import React from 'react';
 import { Lightbulb, Thermometer, Shield, Zap, AlertTriangle, ToggleLeft, ToggleRight } from 'lucide-react';
-import { FibaroDevice, categorizeDevice } from '../../shared/types.ts';
+import { FibaroDevice, categorizeDevice, isDeviceOn } from '../../shared/types.ts';
 import { useDeviceAction } from '../hooks/useFibaro.ts';
 
 interface Props {
@@ -24,7 +24,7 @@ function DeviceIcon({ type }: { type: string }) {
 
 export default function DeviceCard({ device }: Props) {
   const action = useDeviceAction();
-  const isOn = device.properties.value === true || device.properties.value === 1 || device.properties.value === 'true';
+  const isOn = isDeviceOn(device);
   const isDead = device.properties.dead;
   const cat = categorizeDevice(device.type);
   const isToggleable = cat === 'light' || cat === 'dimmer';

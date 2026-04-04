@@ -1,5 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { categorizeDevice } from './types.js';
+import { categorizeDevice, isDeviceOn, FibaroDevice } from './types.js';
+
+function makeDevice(value: boolean | number | string): FibaroDevice {
+  return {
+    id: 1,
+    name: 'Test',
+    type: 'com.fibaro.binarySwitch',
+    roomID: 1,
+    parentId: 0,
+    enabled: true,
+    visible: true,
+    properties: { value, dead: false },
+    interfaces: [],
+  };
+}
 
 describe('categorizeDevice', () => {
   it('classifies binarySwitch as light', () => {
@@ -52,5 +66,31 @@ describe('categorizeDevice', () => {
 
   it('classifies type containing shutter as shutter', () => {
     expect(categorizeDevice('com.fibaro.shutterWithMotor')).toBe('shutter');
+  });
+});
+
+describe('isDeviceOn', () => {
+  it('returns true when value is boolean true', () => {
+    expect(isDeviceOn(makeDevice(true))).toBe(true);
+  });
+
+  it('returns true when value is 1', () => {
+    expect(isDeviceOn(makeDevice(1))).toBe(true);
+  });
+
+  it('returns true when value is string "true"', () => {
+    expect(isDeviceOn(makeDevice('true'))).toBe(true);
+  });
+
+  it('returns false when value is false', () => {
+    expect(isDeviceOn(makeDevice(false))).toBe(false);
+  });
+
+  it('returns false when value is 0', () => {
+    expect(isDeviceOn(makeDevice(0))).toBe(false);
+  });
+
+  it('returns false when value is a non-zero number like 50', () => {
+    expect(isDeviceOn(makeDevice(50))).toBe(false);
   });
 });

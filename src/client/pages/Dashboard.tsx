@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useDevices, useRooms, useWeather, useScenes } from '../hooks/useFibaro.ts';
-import { categorizeDevice } from '../../shared/types.ts';
+import { categorizeDevice, isDeviceOn } from '../../shared/types.ts';
 import { Lightbulb, Thermometer, Shield, Cloud, PlayCircle, AlertTriangle, Zap } from 'lucide-react';
 
 interface StatCardProps {
@@ -33,10 +33,10 @@ export default function Dashboard() {
   const stats = useMemo(() => {
     const categories = devices.map(d => ({ device: d, cat: categorizeDevice(d.type) }));
     const lights = categories.filter(({ cat }) => cat === 'light' || cat === 'dimmer');
-    const lightsOn = lights.filter(({ device: d }) => d.properties.value === true || d.properties.value === 1).length;
+    const lightsOn = lights.filter(({ device: d }) => isDeviceOn(d)).length;
     const totalLights = lights.length;
     const safetyAlerts = categories.filter(({ cat, device: d }) =>
-      cat === 'safety' && (d.properties.value === true || d.properties.value === 1)
+      cat === 'safety' && isDeviceOn(d)
     ).length;
     const offlineDevices = devices.filter(d => d.properties.dead).length;
     const totalPower = devices.reduce((sum, d) => sum + (d.properties.power ?? 0), 0);
@@ -54,7 +54,7 @@ export default function Dashboard() {
       const roomDevices = devices.filter(d => d.roomID === room.id);
       const roomLightsOn = roomDevices.filter(d => {
         const cat = categorizeDevice(d.type);
-        return (cat === 'light' || cat === 'dimmer') && (d.properties.value === true || d.properties.value === 1);
+        return (cat === 'light' || cat === 'dimmer') && isDeviceOn(d);
       }).length;
       const roomTemp = roomDevices.find(d => categorizeDevice(d.type) === 'thermostat');
       return { room, roomDevices, roomLightsOn, roomTemp };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDevices, useRooms, useDeviceAction } from '../hooks/useFibaro.ts';
-import { categorizeDevice } from '../../shared/types.ts';
+import { categorizeDevice, isDeviceOn } from '../../shared/types.ts';
 import DeviceCard from '../components/DeviceCard.tsx';
 import { Lightbulb, AlertTriangle } from 'lucide-react';
 
@@ -20,10 +20,10 @@ export default function Lights() {
     ? lightDevices.filter(d => d.roomID === selectedRoom)
     : lightDevices;
 
-  const lightsOnCount = lightDevices.filter(d => d.properties.value === true || d.properties.value === 1).length;
+  const lightsOnCount = lightDevices.filter(d => isDeviceOn(d)).length;
 
   const turnAllOff = () => {
-    const onDevices = filtered.filter(d => d.properties.value === true || d.properties.value === 1);
+    const onDevices = filtered.filter(d => isDeviceOn(d));
     if (onDevices.length === 0) return;
     setPendingOff(true);
     let remaining = onDevices.length;

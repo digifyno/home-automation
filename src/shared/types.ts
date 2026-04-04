@@ -62,3 +62,8 @@ export function categorizeDevice(type: string): DeviceCategory {
   if (type.includes('shutter') || type.includes('cover')) return 'shutter';
   return 'other';
 }
+
+export function isDeviceOn(device: FibaroDevice): boolean {
+  const v = device.properties.value;
+  return v === true || v === 1 || v === 'true';
+}
