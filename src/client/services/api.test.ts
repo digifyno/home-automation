@@ -105,6 +105,69 @@ describe('deviceAction', () => {
   });
 });
 
+describe('getDevice', () => {
+  it('calls fetch with correct URL and Authorization header', async () => {
+    const device = { id: 42, name: 'Lamp' };
+    mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', device));
+
+    const result = await api.getDevice(42);
+
+    expect(mockFetch).toHaveBeenCalledOnce();
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/fibaro/devices/42');
+    expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer test-token');
+    expect(result).toEqual(device);
+  });
+
+  it('rejects when response is not ok', async () => {
+    mockFetch.mockReturnValue(makeFetchResponse(false, 404, 'Not Found', {}));
+
+    await expect(api.getDevice(42)).rejects.toThrow('HTTP 404: Not Found');
+  });
+});
+
+describe('getWeather', () => {
+  it('calls fetch with correct URL and Authorization header', async () => {
+    const weather = { temperature: 21 };
+    mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', weather));
+
+    const result = await api.getWeather();
+
+    expect(mockFetch).toHaveBeenCalledOnce();
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/fibaro/weather');
+    expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer test-token');
+    expect(result).toEqual(weather);
+  });
+
+  it('rejects when response is not ok', async () => {
+    mockFetch.mockReturnValue(makeFetchResponse(false, 503, 'Service Unavailable', {}));
+
+    await expect(api.getWeather()).rejects.toThrow('HTTP 503: Service Unavailable');
+  });
+});
+
+describe('getScenes', () => {
+  it('calls fetch with correct URL and Authorization header', async () => {
+    const scenes = [{ id: 1, name: 'Evening' }];
+    mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', scenes));
+
+    const result = await api.getScenes();
+
+    expect(mockFetch).toHaveBeenCalledOnce();
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/fibaro/scenes');
+    expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer test-token');
+    expect(result).toEqual(scenes);
+  });
+
+  it('rejects when response is not ok', async () => {
+    mockFetch.mockReturnValue(makeFetchResponse(false, 500, 'Internal Server Error', {}));
+
+    await expect(api.getScenes()).rejects.toThrow('HTTP 500: Internal Server Error');
+  });
+});
+
 describe('executeScene', () => {
   it('posts to correct URL', async () => {
     mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', {}));
