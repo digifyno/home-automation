@@ -9,6 +9,7 @@ export default function Lights() {
   const { data: rooms = [] } = useRooms();
   const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
   const action = useDeviceAction();
+  const [pendingOff, setPendingOff] = useState(false);
 
   const lightDevices = devices.filter(d => {
     const cat = categorizeDevice(d.type);
@@ -23,7 +24,17 @@ export default function Lights() {
 
   const turnAllOff = () => {
     const onDevices = filtered.filter(d => d.properties.value === true || d.properties.value === 1);
-    onDevices.forEach(d => action.mutate({ id: d.id, action: 'turnOff' }));
+    if (onDevices.length === 0) return;
+    setPendingOff(true);
+    let remaining = onDevices.length;
+    onDevices.forEach(d =>
+      action.mutate({ id: d.id, action: 'turnOff' }, {
+        onSettled: () => {
+          remaining--;
+          if (remaining === 0) setPendingOff(false);
+        },
+      })
+    );
   };
 
   if (isLoading) {
@@ -46,7 +57,7 @@ export default function Lights() {
         </div>
         <button
           onClick={turnAllOff}
-          disabled={lightsOnCount === 0 || action.isPending}
+          disabled={lightsOnCount === 0 || pendingOff}
           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
         >
           All Off
