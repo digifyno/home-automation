@@ -142,6 +142,31 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
   });
 });
 
+describe('GET /api/fibaro/scenes', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+    invalidateCache('/api/scenes');
+  });
+
+  it('returns 200 with scene list when Fibaro responds', async () => {
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Morning', isRunning: false }] });
+    const res = await request(app)
+      .get('/api/fibaro/scenes')
+      .set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([{ id: 1, name: 'Morning', isRunning: false }]);
+  });
+
+  it('returns 502 when Fibaro throws', async () => {
+    mockGet.mockRejectedValueOnce(new Error('connection refused'));
+    const res = await request(app)
+      .get('/api/fibaro/scenes')
+      .set(AUTH);
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ error: 'Failed to fetch scenes from Fibaro' });
+  });
+});
+
 describe('POST /api/fibaro/scenes/:id/execute', () => {
   beforeEach(() => {
     mockPost.mockReset();
