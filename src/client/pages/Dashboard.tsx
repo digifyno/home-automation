@@ -25,7 +25,7 @@ function StatCard({ icon, label, value, sub, color = 'text-blue-400' }: StatCard
 }
 
 export default function Dashboard() {
-  const { data: devices = [], isLoading: loadingDevices } = useDevices();
+  const { data: devices = [], isLoading: loadingDevices, isError } = useDevices();
   const { data: rooms = [] } = useRooms();
   const { data: weather } = useWeather();
   const { data: scenes = [] } = useScenes();
@@ -65,6 +65,16 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-3">
+        <AlertTriangle className="text-red-400" size={32} />
+        <p className="text-red-400 font-medium">Failed to load devices</p>
+        <p className="text-gray-500 text-sm">Check that Fibaro HC3 is reachable</p>
       </div>
     );
   }

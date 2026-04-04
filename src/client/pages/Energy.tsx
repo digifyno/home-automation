@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDevices, useRooms } from '../hooks/useFibaro.ts';
 import { categorizeDevice } from '../../shared/types.ts';
-import { Zap } from 'lucide-react';
+import { Zap, AlertTriangle } from 'lucide-react';
 
 export default function Energy() {
-  const { data: devices = [], isLoading } = useDevices();
+  const { data: devices = [], isLoading, isError } = useDevices();
   const { data: rooms = [] } = useRooms();
 
   const powerDevices = devices.filter(d => d.properties.power !== undefined && d.properties.power > 0);
@@ -18,6 +18,16 @@ export default function Energy() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-3">
+        <AlertTriangle className="text-red-400" size={32} />
+        <p className="text-red-400 font-medium">Failed to load devices</p>
+        <p className="text-gray-500 text-sm">Check that Fibaro HC3 is reachable</p>
       </div>
     );
   }

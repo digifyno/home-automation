@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useScenes, useSceneExecute } from '../hooks/useFibaro.ts';
-import { PlayCircle, Loader2 } from 'lucide-react';
+import { PlayCircle, Loader2, AlertTriangle } from 'lucide-react';
 
 export default function Scenes() {
-  const { data: scenes = [], isLoading } = useScenes();
+  const { data: scenes = [], isLoading, isError } = useScenes();
   const execute = useSceneExecute();
   const [pendingScenes, setPendingScenes] = useState<Set<number>>(new Set());
 
@@ -24,6 +24,16 @@ export default function Scenes() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-3">
+        <AlertTriangle className="text-red-400" size={32} />
+        <p className="text-red-400 font-medium">Failed to load scenes</p>
+        <p className="text-gray-500 text-sm">Check that Fibaro HC3 is reachable</p>
       </div>
     );
   }
