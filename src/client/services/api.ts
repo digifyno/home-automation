@@ -15,7 +15,6 @@ export const api = {
   getDevice: (id: number) => fetchJSON<FibaroDevice>(`${BASE}/devices/${id}`),
   getScenes: () => fetchJSON<FibaroScene[]>(`${BASE}/scenes`),
   getWeather: () => fetchJSON<FibaroWeather>(`${BASE}/weather`),
-  getEnergy: () => fetchJSON<unknown>(`${BASE}/energy`),
 
   deviceAction: async (id: number, action: string, args?: unknown) => {
     const res = await fetch(`${BASE}/devices/${id}/action/${action}`, {
