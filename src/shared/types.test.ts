@@ -90,7 +90,11 @@ describe('isDeviceOn', () => {
     expect(isDeviceOn(makeDevice(0))).toBe(false);
   });
 
-  it('returns false when value is a non-zero number like 50', () => {
-    expect(isDeviceOn(makeDevice(50))).toBe(false);
+  it('returns true when value is a non-zero number like 50', () => {
+    expect(isDeviceOn(makeDevice(50))).toBe(true);
+  });
+
+  it('returns true when value is 1', () => {
+    expect(isDeviceOn(makeDevice(1))).toBe(true);
   });
 });
