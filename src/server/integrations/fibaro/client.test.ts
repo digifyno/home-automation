@@ -71,4 +71,21 @@ describe('cachedGet', () => {
     expect(result).toEqual([{ id: 2 }]);
     expect(mockGet).toHaveBeenCalledTimes(2);
   });
+
+  it('propagates error when Fibaro client throws', async () => {
+    invalidateCache('/api/devices');
+    mockGet.mockRejectedValueOnce(new Error('network failure'));
+    await expect(cachedGet('/api/devices')).rejects.toThrow('network failure');
+  });
+
+  it('does not cache failed responses', async () => {
+    invalidateCache('/api/devices');
+    mockGet.mockRejectedValueOnce(new Error('timeout'));
+    await expect(cachedGet('/api/devices')).rejects.toThrow();
+    // Second call should hit Fibaro again
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1 }] });
+    const result = await cachedGet('/api/devices');
+    expect(result).toEqual([{ id: 1 }]);
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
 });
