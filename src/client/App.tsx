@@ -50,6 +50,7 @@ export default function App() {
             <button
               key={item.id}
               onClick={() => setPage(item.id)}
+              aria-current={page === item.id ? 'page' : undefined}
               className={`w-full flex items-center gap-3 px-6 py-3 text-sm transition-colors ${
                 page === item.id
                   ? 'bg-blue-500/10 text-blue-400 border-r-2 border-blue-500'

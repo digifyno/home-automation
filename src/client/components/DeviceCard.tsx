@@ -52,6 +52,7 @@ export default function DeviceCard({ device }: Props) {
           <button
             onClick={toggle}
             disabled={action.isPending || isDead}
+            aria-label={isOn ? `Turn off ${device.name}` : `Turn on ${device.name}`}
             className="text-gray-400 hover:text-white disabled:opacity-50 transition-colors"
           >
             {isOn ? <ToggleRight size={24} className="text-blue-400" /> : <ToggleLeft size={24} />}
