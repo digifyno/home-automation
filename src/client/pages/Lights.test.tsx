@@ -8,9 +8,10 @@ const mockMutate = vi.fn();
 let mockDevices: FibaroDevice[] = [];
 let mockRooms: FibaroRoom[] = [];
 let mockIsLoading = false;
+let mockIsError = false;
 
 vi.mock('../hooks/useFibaro.ts', () => ({
-  useDevices: () => ({ data: mockDevices, isLoading: mockIsLoading }),
+  useDevices: () => ({ data: mockDevices, isLoading: mockIsLoading, isError: mockIsError }),
   useRooms: () => ({ data: mockRooms }),
   useDeviceAction: () => ({ mutate: mockMutate, isPending: false }),
 }));
@@ -54,12 +55,19 @@ describe('Lights page', () => {
     mockDevices = [];
     mockRooms = [];
     mockIsLoading = false;
+    mockIsError = false;
   });
 
   it('shows loading spinner when isLoading is true', () => {
     mockIsLoading = true;
     const { container } = render(<Lights />);
     expect(container.querySelector('.animate-spin')).toBeTruthy();
+  });
+
+  it('shows error state when isError is true', () => {
+    mockIsError = true;
+    render(<Lights />);
+    expect(screen.getByText('Failed to load devices')).toBeTruthy();
   });
 
   it('shows all light devices when no room filter selected', () => {
