@@ -18,7 +18,8 @@ npm install          # Install dependencies
 npm run dev          # Start dev server (frontend + backend)
 npm run build        # Production build
 npm run typecheck    # TypeScript type checking
-npm test             # Run tests
+npm test             # Run tests (vitest, single pass)
+npm run test:watch   # Run tests in watch mode
 ```
 
 ## Architecture
@@ -101,6 +102,8 @@ ALLOWED_ORIGIN=
 - Error handling: wrap all API calls with proper error boundaries
 - Use environment variables for all secrets - never hardcode credentials
 - Write tests for integration connectors and critical UI logic
+- Tests use **vitest**; client hooks (`src/client/hooks/**`) run in the `jsdom` environment (configured via `environmentMatchGlobs` in `vitest.config.ts`)
+- Coverage reporting is not yet configured (`@vitest/coverage-v8` not installed; no `npm run coverage` command)
 
 ## Allowed Domains
 
