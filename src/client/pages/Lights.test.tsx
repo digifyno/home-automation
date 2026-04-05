@@ -95,6 +95,23 @@ describe('Lights page', () => {
     expect(screen.queryByText('Bedroom Light')).toBeNull();
   });
 
+  it('clicking All Rooms after room filter clears the filter and shows all devices', () => {
+    mockDevices = [
+      makeLight({ id: 1, name: 'Kitchen Light', roomID: 1 }),
+      makeLight({ id: 2, name: 'Bedroom Light', roomID: 2 }),
+    ];
+    mockRooms = [
+      makeRoom({ id: 1, name: 'Kitchen' }),
+      makeRoom({ id: 2, name: 'Bedroom' }),
+    ];
+    render(<Lights />);
+    fireEvent.click(screen.getByText('Kitchen'));
+    expect(screen.queryByText('Bedroom Light')).toBeNull();
+    fireEvent.click(screen.getByText('All Rooms'));
+    expect(screen.getByText('Kitchen Light')).toBeTruthy();
+    expect(screen.getByText('Bedroom Light')).toBeTruthy();
+  });
+
   it('All Off button is disabled when no lights are on', () => {
     mockDevices = [makeLight({ properties: { value: false, dead: false } })];
     render(<Lights />);
