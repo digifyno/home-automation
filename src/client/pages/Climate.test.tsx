@@ -88,6 +88,16 @@ describe('Climate page', () => {
     expect(screen.getByText('Temperature Sensors')).toBeTruthy();
   });
 
+  it('renders humidity sensors section when humidity devices are present', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Bathroom Humidity', type: 'com.fibaro.humiditySensor', properties: { value: 65, dead: false } }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('Humidity Sensors')).toBeTruthy();
+    expect(screen.getByText('Bathroom Humidity')).toBeTruthy();
+    expect(screen.getByText('65%')).toBeTruthy();
+  });
+
   it('shows No climate devices found when there are no thermostats or temp sensors', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.binarySwitch', properties: { value: false, dead: false } }),
