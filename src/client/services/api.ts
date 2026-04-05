@@ -22,7 +22,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
       body: JSON.stringify(args ?? {}),
     });
-    if (!res.ok) throw new Error(`Action failed: HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     return res.json();
   },
 
@@ -31,7 +31,7 @@ export const api = {
       method: 'POST',
       headers: { Authorization: `Bearer ${TOKEN}` },
     });
-    if (!res.ok) throw new Error(`Scene execute failed: HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     return res.json();
   },
 };

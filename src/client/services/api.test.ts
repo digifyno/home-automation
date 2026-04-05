@@ -101,7 +101,7 @@ describe('deviceAction', () => {
   it('rejects when response is not ok', async () => {
     mockFetch.mockReturnValue(makeFetchResponse(false, 500, 'Internal Server Error', {}));
 
-    await expect(api.deviceAction(42, 'turnOn')).rejects.toThrow('HTTP 500');
+    await expect(api.deviceAction(42, 'turnOn')).rejects.toThrow('HTTP 500: Internal Server Error');
   });
 });
 
@@ -182,6 +182,6 @@ describe('executeScene', () => {
   it('rejects when response is not ok', async () => {
     mockFetch.mockReturnValue(makeFetchResponse(false, 403, 'Forbidden', {}));
 
-    await expect(api.executeScene(7)).rejects.toThrow('HTTP 403');
+    await expect(api.executeScene(7)).rejects.toThrow('HTTP 403: Forbidden');
   });
 });
