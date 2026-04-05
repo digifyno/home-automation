@@ -6,10 +6,12 @@ import type { FibaroDevice } from '../../shared/types';
 
 const mockMutate = vi.fn();
 
+const { mockIsPending } = vi.hoisted(() => ({ mockIsPending: { value: false } }));
+
 vi.mock('../hooks/useFibaro.ts', () => ({
   useDeviceAction: () => ({
     mutate: mockMutate,
-    isPending: false,
+    isPending: mockIsPending.value,
   }),
 }));
 
@@ -40,6 +42,7 @@ describe('DeviceCard', () => {
 
   beforeEach(() => {
     mockMutate.mockClear();
+    mockIsPending.value = false;
   });
 
   it('renders device name', () => {
@@ -101,5 +104,22 @@ describe('DeviceCard', () => {
     render(<DeviceCard device={makeDevice({ name: 'Kitchen Lamp' })} />);
     const btn = screen.getByRole('button');
     expect(btn.getAttribute('aria-label')).toContain('Kitchen Lamp');
+  });
+
+  it('toggle button is disabled when action.isPending is true', () => {
+    mockIsPending.value = true;
+    render(<DeviceCard device={makeDevice({ properties: { value: true, dead: false } })} />);
+    const btn = screen.getByRole('button') as HTMLButtonElement;
+    expect(btn.disabled).toBe(true);
+  });
+
+  it('shows value and unit when device has numeric value and unit', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.temperatureSensor', properties: { value: 21.5, dead: false, unit: '°C' } })} />);
+    expect(screen.getByText('21.5 °C')).toBeTruthy();
+  });
+
+  it('shows power in watts when device has power property', () => {
+    render(<DeviceCard device={makeDevice({ properties: { value: false, dead: false, power: 150 } })} />);
+    expect(screen.getByText('150W')).toBeTruthy();
   });
 });
