@@ -13,6 +13,10 @@ vi.mock('./hooks/useFibaro.ts', () => ({
   useSceneExecute: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
+vi.mock('./hooks/useHealth.ts', () => ({
+  useHealth: () => ({ data: undefined, isError: false }),
+}));
+
 function renderApp() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(<QueryClientProvider client={client}><App /></QueryClientProvider>);
