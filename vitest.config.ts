@@ -13,5 +13,25 @@ export default defineConfig({
       ['src/client/**/*.test.tsx', 'jsdom'],
       ['src/client/hooks/**/*.test.ts', 'jsdom'],
     ],
+    coverage: {
+      provider: 'v8',
+      include: [
+        'src/server/**/*.ts',
+        'src/shared/**/*.ts',
+      ],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/**/*.test.tsx',
+        'src/test-setup.ts',
+        'src/server/index.ts',
+      ],
+      thresholds: {
+        lines: 80,
+        branches: 75,
+        functions: 80,
+        statements: 80,
+      },
+      reporter: ['text', 'html'],
+    },
   },
 });
