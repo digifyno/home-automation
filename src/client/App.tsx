@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Home, Lightbulb, Thermometer, Shield, Zap, PlayCircle } from 'lucide-react';
+import { useHealth } from './hooks/useHealth.ts';
 import Dashboard from './pages/Dashboard.tsx';
 import Lights from './pages/Lights.tsx';
 import Climate from './pages/Climate.tsx';
@@ -20,6 +21,8 @@ const navItems: { id: Page; label: string; icon: React.ReactNode }[] = [
 
 export default function App() {
   const [page, setPage] = useState<Page>('dashboard');
+  const { data: health, isError: healthError } = useHealth();
+  const isLive = !healthError && health?.status === 'ok';
 
   const pages: Record<Page, React.ReactNode> = {
     dashboard: <Dashboard />,
@@ -64,8 +67,8 @@ export default function App() {
         </div>
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            Live
+            <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+            {isLive ? 'Live' : 'Offline'}
           </div>
         </div>
       </nav>
