@@ -18,12 +18,16 @@ export default defineConfig({
       include: [
         'src/server/**/*.ts',
         'src/shared/**/*.ts',
+        'src/client/**/*.ts',
+        'src/client/**/*.tsx',
       ],
       exclude: [
         'src/**/*.test.ts',
         'src/**/*.test.tsx',
         'src/test-setup.ts',
         'src/server/index.ts',
+        'src/client/main.tsx',
+        'src/client/vite-env.d.ts',
       ],
       thresholds: {
         lines: 80,
