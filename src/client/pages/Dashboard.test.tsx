@@ -138,4 +138,26 @@ describe('Dashboard page', () => {
     render(<Dashboard />);
     expect(screen.queryByText('Offline')).toBeNull();
   });
+
+  it('shows weather stat card when weather data is provided', () => {
+    mockWeather = { Temperature: 18, Humidity: 60, Wind: 15, WeatherCondition: 'Sunny', ConditionCode: 1 };
+    render(<Dashboard />);
+    expect(screen.getByText('18°C')).toBeTruthy();
+    expect(screen.getByText('Sunny')).toBeTruthy();
+  });
+
+  it('does not show weather stat card when weather is undefined', () => {
+    mockWeather = undefined;
+    render(<Dashboard />);
+    expect(screen.queryByText('Sunny')).toBeNull();
+  });
+
+  it('shows thermostat temperature in room card', () => {
+    mockRooms = [makeRoom({ id: 1, name: 'Bedroom' })];
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.hvacSystem', roomID: 1, properties: { value: 22, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('22°C')).toBeTruthy();
+  });
 });
