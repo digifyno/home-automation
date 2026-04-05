@@ -26,6 +26,7 @@ interface CacheEntry<T> {
 }
 
 const cache = new Map<string, CacheEntry<unknown>>();
+const inflight = new Map<string, Promise<unknown>>();
 
 const TTLs: Record<string, number> = {
   '/api/rooms': 5 * 60 * 1000,
@@ -41,10 +42,21 @@ export async function cachedGet<T>(path: string): Promise<T> {
   if (cached && cached.expiresAt > now) {
     return cached.data as T;
   }
-  const response = await fibaroClient.get<T>(path);
-  const ttl = TTLs[path] ?? 30 * 1000;
-  cache.set(path, { data: response.data, expiresAt: now + ttl });
-  return response.data;
+  const existing = inflight.get(path);
+  if (existing) return existing as Promise<T>;
+
+  const promise = fibaroClient.get<T>(path).then(response => {
+    const ttl = TTLs[path] ?? 30 * 1000;
+    cache.set(path, { data: response.data, expiresAt: Date.now() + ttl });
+    inflight.delete(path);
+    return response.data;
+  }).catch(err => {
+    inflight.delete(path);
+    throw err;
+  });
+
+  inflight.set(path, promise);
+  return promise;
 }
 
 export function invalidateCache(path: string): void {

@@ -78,6 +78,26 @@ describe('cachedGet', () => {
     await expect(cachedGet('/api/devices')).rejects.toThrow('network failure');
   });
 
+  it('coalesces concurrent requests for the same path into a single network call', async () => {
+    let resolveRequest!: (value: { data: unknown }) => void;
+    const pendingRequest = new Promise<{ data: unknown }>(resolve => {
+      resolveRequest = resolve;
+    });
+    mockGet.mockReturnValueOnce(pendingRequest);
+
+    // Both calls start before any promise resolves — the second should reuse the inflight entry
+    const promise1 = cachedGet('/api/devices');
+    const promise2 = cachedGet('/api/devices');
+
+    resolveRequest({ data: [{ id: 1 }] });
+
+    const [result1, result2] = await Promise.all([promise1, promise2]);
+
+    expect(mockGet).toHaveBeenCalledTimes(1);
+    expect(result1).toEqual([{ id: 1 }]);
+    expect(result2).toEqual([{ id: 1 }]);
+  });
+
   it('does not cache failed responses', async () => {
     invalidateCache('/api/devices');
     mockGet.mockRejectedValueOnce(new Error('timeout'));
