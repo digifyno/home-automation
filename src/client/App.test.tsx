@@ -3,6 +3,7 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
+import { useHealth } from './hooks/useHealth.ts';
 
 vi.mock('./hooks/useFibaro.ts', () => ({
   useDevices: () => ({ data: [], isLoading: false, isError: false }),
@@ -14,7 +15,7 @@ vi.mock('./hooks/useFibaro.ts', () => ({
 }));
 
 vi.mock('./hooks/useHealth.ts', () => ({
-  useHealth: () => ({ data: undefined, isError: false }),
+  useHealth: vi.fn(() => ({ data: undefined, isError: false })),
 }));
 
 function renderApp() {
@@ -66,5 +67,19 @@ describe('App navigation', () => {
     const dashboardBtn = screen.getByRole('button', { name: /dashboard/i });
     fireEvent.click(dashboardBtn);
     expect(dashboardBtn.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('shows Live indicator when health status is ok', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'ok', fibaro: 'reachable' }, isError: false });
+    renderApp();
+    expect(screen.getByText('Live')).toBeTruthy();
+    expect(screen.queryByText('Offline')).toBeNull();
+  });
+
+  it('shows Offline indicator when health check errors', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: undefined, isError: true });
+    renderApp();
+    expect(screen.getByText('Offline')).toBeTruthy();
+    expect(screen.queryByText('Live')).toBeNull();
   });
 });
