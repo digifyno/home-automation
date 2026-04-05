@@ -72,7 +72,7 @@ describe('deviceAction', () => {
   it('sends Content-Type and Authorization headers', async () => {
     mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', {}));
 
-    await api.deviceAction(42, 'setValue', [50]);
+    await api.deviceAction(42, 'setValue', { value: 50 });
 
     const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
     const headers = init.headers as Record<string, string>;
@@ -83,10 +83,10 @@ describe('deviceAction', () => {
   it('serializes args as request body', async () => {
     mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', {}));
 
-    await api.deviceAction(42, 'setValue', [75]);
+    await api.deviceAction(42, 'setValue', { value: 75 });
 
     const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
-    expect(init.body).toBe(JSON.stringify([75]));
+    expect(init.body).toBe(JSON.stringify({ value: 75 }));
   });
 
   it('uses empty object as body when args is not provided', async () => {
