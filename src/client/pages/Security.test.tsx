@@ -14,6 +14,19 @@ vi.mock('../hooks/useFibaro.ts', () => ({
   useRooms: () => ({ data: mockRooms }),
 }));
 
+function makeRoom(overrides: Partial<FibaroRoom> = {}): FibaroRoom {
+  return {
+    id: 1,
+    name: 'Room',
+    sectionID: 1,
+    icon: '',
+    defaultSensor: 0,
+    defaultThermostat: 0,
+    sortOrder: 0,
+    ...overrides,
+  };
+}
+
 function makeDevice(overrides: Partial<FibaroDevice> & { properties?: Partial<FibaroDevice['properties']> } = {}): FibaroDevice {
   const { properties: propOverrides, ...rest } = overrides;
   return {
@@ -107,5 +120,32 @@ describe('Security page', () => {
     ];
     render(<Security />);
     expect(screen.getByText('Device offline')).toBeTruthy();
+  });
+
+  it('shows alert banner with tampered sensor count when device is tampered but not triggered', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, tampered: true } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('0 alerts active')).toBeTruthy();
+    expect(screen.getByText('1 sensor tampered')).toBeTruthy();
+  });
+
+  it('shows plural alert count when multiple sensors are triggered', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: true, dead: false } }),
+      makeDevice({ id: 2, type: 'com.fibaro.smokeDetector', properties: { value: true, dead: false } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('2 alerts active')).toBeTruthy();
+  });
+
+  it('shows room name in device card when room is found', () => {
+    mockRooms = [makeRoom({ id: 1, name: 'Hallway' })];
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', roomID: 1, properties: { value: false, dead: false } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('Hallway')).toBeTruthy();
   });
 });
