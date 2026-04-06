@@ -12,6 +12,7 @@ let mockIsError = false;
 vi.mock('../hooks/useFibaro.ts', () => ({
   useDevices: () => ({ data: mockDevices, isLoading: mockIsLoading, isError: mockIsError }),
   useRooms: () => ({ data: mockRooms }),
+  useEnergy: () => ({ data: [] }),
 }));
 
 function makeDevice(overrides: Partial<FibaroDevice> & { properties?: Partial<FibaroDevice['properties']> } = {}): FibaroDevice {

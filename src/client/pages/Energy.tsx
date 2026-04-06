@@ -1,11 +1,12 @@
 import React from 'react';
-import { useDevices, useRooms } from '../hooks/useFibaro.ts';
+import { useDevices, useEnergy, useRooms } from '../hooks/useFibaro.ts';
 import { categorizeDevice } from '../../shared/types.ts';
 import { Zap, AlertTriangle } from 'lucide-react';
 
 export default function Energy() {
   const { data: devices = [], isLoading, isError } = useDevices();
   const { data: rooms = [] } = useRooms();
+  const { data: energyData = [] } = useEnergy();
 
   const powerDevices = devices.filter(d => d.properties.power !== undefined && d.properties.power > 0);
   const energyMeters = devices.filter(d => categorizeDevice(d.type) === 'energy');
@@ -84,6 +85,8 @@ export default function Energy() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {energyMeters.map(device => {
               const room = rooms.find(r => r.id === device.roomID);
+              const energyEntry = energyData.find(e => e.id === device.id);
+              const totalEnergy = energyEntry?.value ?? device.properties.energy;
               return (
                 <div key={device.id} className="bg-gray-800 rounded-xl p-5 border border-gray-700">
                   <p className="text-xs text-gray-400">{room?.name}</p>
@@ -95,9 +98,9 @@ export default function Energy() {
                         <p className="text-xs text-gray-400">Watts</p>
                       </div>
                     )}
-                    {device.properties.energy !== undefined && (
+                    {totalEnergy !== undefined && (
                       <div>
-                        <p className="text-2xl font-bold text-blue-400">{device.properties.energy.toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-blue-400">{totalEnergy.toFixed(2)}</p>
                         <p className="text-xs text-gray-400">kWh</p>
                       </div>
                     )}

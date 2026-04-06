@@ -168,6 +168,22 @@ describe('getScenes', () => {
   });
 });
 
+describe('getEnergy', () => {
+  it('calls fetch with correct URL and Authorization header', async () => {
+    const energy = [{ id: 1, value: 10.5 }];
+    mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', energy));
+    const result = await api.getEnergy();
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/fibaro/energy');
+    expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer test-token');
+    expect(result).toEqual(energy);
+  });
+  it('rejects when response is not ok', async () => {
+    mockFetch.mockReturnValue(makeFetchResponse(false, 502, 'Bad Gateway', {}));
+    await expect(api.getEnergy()).rejects.toThrow('HTTP 502: Bad Gateway');
+  });
+});
+
 describe('executeScene', () => {
   it('posts to correct URL', async () => {
     mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', {}));

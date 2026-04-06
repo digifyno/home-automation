@@ -50,6 +50,14 @@ export interface FibaroWeather {
   ConditionCode: number;
 }
 
+export interface FibaroEnergyDevice {
+  id: number;
+  name?: string;
+  value: number;           // cumulative kWh
+  unit?: string;
+  roomID?: number;
+}
+
 export type DeviceCategory = 'light' | 'dimmer' | 'thermostat' | 'sensor' | 'safety' | 'energy' | 'shutter' | 'other';
 
 export function categorizeDevice(type: string): DeviceCategory {

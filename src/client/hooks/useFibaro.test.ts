@@ -2,15 +2,16 @@ import { renderHook, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
-import { useDeviceAction, useSceneExecute, useRooms, useDevices, useScenes, useWeather } from './useFibaro.js';
+import { useDeviceAction, useSceneExecute, useRooms, useDevices, useScenes, useWeather, useEnergy } from './useFibaro.js';
 
-const { mockDeviceAction, mockExecuteScene, mockGetRooms, mockGetDevices, mockGetScenes, mockGetWeather } = vi.hoisted(() => ({
+const { mockDeviceAction, mockExecuteScene, mockGetRooms, mockGetDevices, mockGetScenes, mockGetWeather, mockGetEnergy } = vi.hoisted(() => ({
   mockDeviceAction: vi.fn(),
   mockExecuteScene: vi.fn(),
   mockGetRooms: vi.fn(),
   mockGetDevices: vi.fn(),
   mockGetScenes: vi.fn(),
   mockGetWeather: vi.fn(),
+  mockGetEnergy: vi.fn(),
 }));
 
 vi.mock('../services/api.ts', () => ({
@@ -21,6 +22,7 @@ vi.mock('../services/api.ts', () => ({
     getDevices: mockGetDevices,
     getScenes: mockGetScenes,
     getWeather: mockGetWeather,
+    getEnergy: mockGetEnergy,
   },
 }));
 
@@ -37,6 +39,7 @@ beforeEach(() => {
   mockGetDevices.mockReset();
   mockGetScenes.mockReset();
   mockGetWeather.mockReset();
+  mockGetEnergy.mockReset();
 });
 
 describe('useDeviceAction', () => {
@@ -161,5 +164,19 @@ describe('useWeather', () => {
     expect(opts?.queryKey).toEqual(['weather']);
     expect(opts?.queryFn).toBe(mockGetWeather);
     expect(opts?.refetchInterval).toBe(60000);
+  });
+});
+
+describe('useEnergy', () => {
+  it('uses queryKey ["energy"], api.getEnergy, and refetchInterval 30000', async () => {
+    mockGetEnergy.mockResolvedValue([]);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    renderHook(() => useEnergy(), { wrapper: makeWrapper(queryClient) });
+
+    const opts = getQueryOptions(queryClient, ['energy']);
+    expect(opts?.queryKey).toEqual(['energy']);
+    expect(opts?.queryFn).toBe(mockGetEnergy);
+    expect(opts?.refetchInterval).toBe(30000);
   });
 });
