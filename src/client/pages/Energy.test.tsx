@@ -96,6 +96,18 @@ describe('Energy page', () => {
     expect(screen.getByText('Main Meter')).toBeTruthy();
   });
 
+  it('progressbar for active consumer has correct aria-valuenow', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Heater', properties: { value: true, dead: false, power: 750 } }),
+      makeDevice({ id: 2, name: 'Fridge', properties: { value: true, dead: false, power: 250 } }),
+    ];
+    render(<Energy />);
+    const bars = screen.getAllByRole('progressbar');
+    const heaterBar = bars.find(el => el.getAttribute('aria-label') === 'Heater power share');
+    expect(heaterBar).toBeTruthy();
+    expect(heaterBar?.getAttribute('aria-valuenow')).toBe('75');
+  });
+
   it('does not include device with power 0 in active consumers', () => {
     mockDevices = [
       makeDevice({ id: 1, name: 'Idle Device', properties: { value: false, dead: false, power: 0 } }),

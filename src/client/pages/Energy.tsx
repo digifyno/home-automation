@@ -65,7 +65,14 @@ export default function Energy() {
                     </div>
                     <span className="text-green-400 font-medium">{power.toFixed(1)} W</span>
                   </div>
-                  <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    role="progressbar"
+                    aria-valuenow={Math.round(pct)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${device.name} power share`}
+                    className="h-1.5 bg-gray-700 rounded-full overflow-hidden"
+                  >
                     <div
                       className="h-full bg-green-500 rounded-full transition-all"
                       style={{ width: `${pct}%` }}
