@@ -10,6 +10,7 @@ vi.mock('./hooks/useFibaro.ts', () => ({
   useRooms: () => ({ data: [], isLoading: false, isError: false }),
   useScenes: () => ({ data: [], isLoading: false, isError: false }),
   useWeather: () => ({ data: [], isLoading: false, isError: false }),
+  useEnergy: () => ({ data: [], isLoading: false, isError: false }),
   useDeviceAction: () => ({ mutate: vi.fn(), isPending: false }),
   useSceneExecute: () => ({ mutate: vi.fn(), isPending: false }),
 }));
@@ -51,6 +52,20 @@ describe('App navigation', () => {
     renderApp();
     fireEvent.click(screen.getByRole('button', { name: /scenes/i }));
     expect(screen.getByRole('heading', { name: /scenes/i })).toBeTruthy();
+  });
+
+  it('clicking Security nav item shows Security page', () => {
+    renderApp();
+    fireEvent.click(screen.getByRole('button', { name: /security/i }));
+    expect(screen.getByRole('heading', { name: /security/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /security/i }).getAttribute('aria-current')).toBe('page');
+  });
+
+  it('clicking Energy nav item shows Energy page', () => {
+    renderApp();
+    fireEvent.click(screen.getByRole('button', { name: /energy/i }));
+    expect(screen.getByRole('heading', { name: /energy/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /energy/i }).getAttribute('aria-current')).toBe('page');
   });
 
   it('aria-current moves to the active page', () => {
