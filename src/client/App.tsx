@@ -22,7 +22,19 @@ const navItems: { id: Page; label: string; icon: React.ReactNode }[] = [
 export default function App() {
   const [page, setPage] = useState<Page>('dashboard');
   const { data: health, isError: healthError } = useHealth();
-  const isLive = !healthError && health?.status === 'ok';
+  const healthStatus: 'live' | 'degraded' | 'offline' =
+    healthError ? 'offline'
+    : health?.status === 'ok' ? 'live'
+    : health?.status === 'degraded' ? 'degraded'
+    : 'offline';
+  const dotColor =
+    healthStatus === 'live' ? 'bg-green-400 animate-pulse'
+    : healthStatus === 'degraded' ? 'bg-yellow-400'
+    : 'bg-red-400';
+  const statusLabel =
+    healthStatus === 'live' ? 'Live'
+    : healthStatus === 'degraded' ? 'Degraded'
+    : 'Offline';
 
   const pages: Record<Page, React.ReactNode> = {
     dashboard: <Dashboard />,
@@ -67,8 +79,8 @@ export default function App() {
         </div>
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-            {isLive ? 'Live' : 'Offline'}
+            <div className={`w-2 h-2 rounded-full ${dotColor}`} />
+            {statusLabel}
           </div>
         </div>
       </nav>

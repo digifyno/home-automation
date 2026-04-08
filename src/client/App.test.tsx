@@ -97,4 +97,12 @@ describe('App navigation', () => {
     expect(screen.getByText('Offline')).toBeTruthy();
     expect(screen.queryByText('Live')).toBeNull();
   });
+
+  it('shows Degraded indicator when health status is degraded', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'degraded', fibaro: 'unreachable' }, isError: false });
+    renderApp();
+    expect(screen.getByText('Degraded')).toBeTruthy();
+    expect(screen.queryByText('Live')).toBeNull();
+    expect(screen.queryByText('Offline')).toBeNull();
+  });
 });
