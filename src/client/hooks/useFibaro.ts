@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { ActionBody } from '../../shared/types.ts';
 import { api } from '../services/api.ts';
 
 export function useRooms() {
@@ -24,7 +25,7 @@ export function useEnergy() {
 export function useDeviceAction() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, action, args }: { id: number; action: string; args?: unknown }) =>
+    mutationFn: ({ id, action, args }: { id: number; action: string; args?: ActionBody }) =>
       api.deviceAction(id, action, args),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['devices'] });

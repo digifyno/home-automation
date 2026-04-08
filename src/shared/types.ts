@@ -1,3 +1,7 @@
+export interface ActionBody {
+  value?: number | boolean | string;
+}
+
 export interface FibaroDevice {
   id: number;
   name: string;

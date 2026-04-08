@@ -1,4 +1,4 @@
-import { FibaroDevice, FibaroEnergyDevice, FibaroRoom, FibaroScene, FibaroWeather } from '../../shared/types.ts';
+import { ActionBody, FibaroDevice, FibaroEnergyDevice, FibaroRoom, FibaroScene, FibaroWeather } from '../../shared/types.ts';
 
 const BASE = '/api/fibaro';
 const TOKEN = import.meta.env.VITE_API_TOKEN as string;
@@ -17,7 +17,7 @@ export const api = {
   getWeather: () => fetchJSON<FibaroWeather>(`${BASE}/weather`),
   getEnergy: () => fetchJSON<FibaroEnergyDevice[]>(`${BASE}/energy`),
 
-  deviceAction: async (id: number, action: string, args?: unknown) => {
+  deviceAction: async (id: number, action: string, args?: ActionBody) => {
     const res = await fetch(`${BASE}/devices/${id}/action/${action}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },

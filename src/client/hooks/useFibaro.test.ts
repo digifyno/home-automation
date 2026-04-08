@@ -52,10 +52,10 @@ describe('useDeviceAction', () => {
     });
 
     await act(async () => {
-      await result.current.mutateAsync({ id: 42, action: 'turnOn', args: [1] });
+      await result.current.mutateAsync({ id: 42, action: 'setValue', args: { value: 50 } });
     });
 
-    expect(mockDeviceAction).toHaveBeenCalledWith(42, 'turnOn', [1]);
+    expect(mockDeviceAction).toHaveBeenCalledWith(42, 'setValue', { value: 50 });
   });
 
   it('invalidates devices query on success', async () => {
