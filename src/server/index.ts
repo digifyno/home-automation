@@ -49,6 +49,11 @@ app.get('/api/health', async (_req, res) => {
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
+  // Catch unmatched /api/* routes before serving the SPA
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'Not found' });
+  });
+
   const publicDir = path.join(__dirname, '../../dist');
   app.use(express.static(publicDir));
   // SPA fallback
