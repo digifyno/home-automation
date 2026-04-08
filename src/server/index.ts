@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express, { type Request, type Response, type NextFunction } from 'express';
+import helmet from 'helmet';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -25,6 +26,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+app.use(helmet());
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN ?? false,
   methods: ['GET', 'POST'],
