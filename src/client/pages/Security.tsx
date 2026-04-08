@@ -102,7 +102,14 @@ export default function Security() {
                     <span>Battery</span>
                     <span>{device.properties.batteryLevel}%</span>
                   </div>
-                  <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    role="progressbar"
+                    aria-valuenow={device.properties.batteryLevel}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Battery level"
+                    className="h-1.5 bg-gray-700 rounded-full overflow-hidden"
+                  >
                     <div
                       className={`h-full rounded-full transition-all ${
                         device.properties.batteryLevel > 50 ? 'bg-green-500' :
