@@ -96,6 +96,18 @@ describe('Energy page', () => {
     expect(screen.getByText('Main Meter')).toBeTruthy();
   });
 
+  it('renders progressbar role for a device with power > 0', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Heater', properties: { value: true, dead: false, power: 1000 } }),
+    ];
+    render(<Energy />);
+    const bars = screen.getAllByRole('progressbar');
+    expect(bars.length).toBeGreaterThan(0);
+    expect(bars[0].getAttribute('aria-label')).toBe('Heater power usage');
+    expect(bars[0].getAttribute('aria-valuemin')).toBe('0');
+    expect(bars[0].getAttribute('aria-valuemax')).toBe('100');
+  });
+
   it('does not include device with power 0 in active consumers', () => {
     mockDevices = [
       makeDevice({ id: 1, name: 'Idle Device', properties: { value: false, dead: false, power: 0 } }),
