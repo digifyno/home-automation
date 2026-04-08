@@ -21,6 +21,7 @@ export default function Lights() {
     : lightDevices;
 
   const lightsOnCount = lightDevices.filter(d => isDeviceOn(d)).length;
+  const filteredOnCount = filtered.filter(d => isDeviceOn(d)).length;
 
   const turnAllOff = () => {
     const onDevices = filtered.filter(d => isDeviceOn(d));
@@ -67,7 +68,7 @@ export default function Lights() {
         </div>
         <button
           onClick={turnAllOff}
-          disabled={lightsOnCount === 0 || pendingOff}
+          disabled={filteredOnCount === 0 || pendingOff}
           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
         >
           All Off

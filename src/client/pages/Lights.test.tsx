@@ -137,6 +137,21 @@ describe('Lights page', () => {
     );
   });
 
+  it('All Off button is disabled when filtered room has no lights on, even if other rooms do', () => {
+    mockDevices = [
+      makeLight({ id: 1, roomID: 1, properties: { value: false, dead: false } }), // Kitchen — off
+      makeLight({ id: 2, roomID: 2, properties: { value: true, dead: false } }),  // Bedroom — on
+    ];
+    mockRooms = [
+      makeRoom({ id: 1, name: 'Kitchen' }),
+      makeRoom({ id: 2, name: 'Bedroom' }),
+    ];
+    render(<Lights />);
+    fireEvent.click(screen.getByText('Kitchen'));
+    const btn = screen.getByText('All Off').closest('button') as HTMLButtonElement;
+    expect(btn.disabled).toBe(true);
+  });
+
   it('All Off button becomes disabled (pending) after clicking while mutations are in flight', () => {
     mockDevices = [makeLight({ id: 1, properties: { value: true, dead: false } })];
     // mutate does NOT call onSettled — simulates in-flight mutation
