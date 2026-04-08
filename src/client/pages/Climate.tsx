@@ -142,7 +142,7 @@ export default function Climate() {
         </div>
       )}
 
-      {thermostats.length === 0 && tempSensors.length === 0 && (
+      {thermostats.length === 0 && tempSensors.length === 0 && humiditySensors.length === 0 && (
         <div className="text-center py-12 text-gray-500">No climate devices found</div>
       )}
     </div>
