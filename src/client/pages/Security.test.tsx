@@ -131,6 +131,14 @@ describe('Security page', () => {
     expect(screen.getByText('1 sensor tampered')).toBeTruthy();
   });
 
+  it('highlights device card when value is numeric 1', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: 1, dead: false } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('1 alert active')).toBeTruthy();
+  });
+
   it('shows plural alert count when multiple sensors are triggered', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: true, dead: false } }),

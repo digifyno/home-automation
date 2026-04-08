@@ -75,7 +75,7 @@ export default function Security() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {safetyDevices.map(device => {
           const room = rooms.find(r => r.id === device.roomID);
-          const triggered = device.properties.value === true || device.properties.value === 1;
+          const triggered = isDeviceOn(device);
           return (
             <div
               key={device.id}
