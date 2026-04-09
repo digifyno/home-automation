@@ -190,4 +190,35 @@ describe('Dashboard page', () => {
     render(<Dashboard />);
     expect(screen.getByText('22°C')).toBeTruthy();
   });
+
+  it('shows Avg Indoor stat card with thermostat temperature', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.hvacSystem', properties: { value: 21, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('21.0°C')).toBeTruthy();
+    expect(screen.getByText('1 thermostats')).toBeTruthy();
+  });
+
+  it('shows Power Usage stat card with summed device watts', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.binarySwitch', properties: { value: true, dead: false, power: 1500 } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('1500W')).toBeTruthy();
+  });
+
+  it('shows Safety stat card as OK when no alerts', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('OK')).toBeTruthy();
+  });
+
+  it('shows Scenes stat card count from useScenes data', () => {
+    mockScenes = [{ id: 1, name: 'Eve', roomID: 1, type: 'lua', runConfig: '', enabled: true, isRunning: false }];
+    render(<Dashboard />);
+    expect(screen.getAllByText('1').length).toBeGreaterThan(0);
+  });
 });
