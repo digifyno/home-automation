@@ -190,6 +190,15 @@ describe('POST /api/fibaro/scenes/:id/execute', () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ result: 'started' });
   });
+
+  it('returns 502 when Fibaro post fails', async () => {
+    mockPost.mockRejectedValueOnce(new Error('fibaro down'));
+    const res = await request(app)
+      .post('/api/fibaro/scenes/5/execute')
+      .set(AUTH);
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ error: 'Failed to execute scene' });
+  });
 });
 
 describe('GET /api/fibaro/rooms', () => {
