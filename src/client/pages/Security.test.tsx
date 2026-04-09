@@ -114,6 +114,26 @@ describe('Security page', () => {
     expect(screen.getByText('Battery')).toBeTruthy();
   });
 
+  it('shows yellow battery bar when batteryLevel is 35 (medium, 21–50%)', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 35 } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('35%')).toBeTruthy();
+    const bar = screen.getByRole('progressbar').querySelector('div');
+    expect(bar?.className).toContain('bg-yellow-500');
+  });
+
+  it('shows red battery bar when batteryLevel is 10 (low, ≤20%)', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 10 } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('10%')).toBeTruthy();
+    const bar = screen.getByRole('progressbar').querySelector('div');
+    expect(bar?.className).toContain('bg-red-500');
+  });
+
   it('shows Device offline text when device.properties.dead is true', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: true } }),
