@@ -152,6 +152,17 @@ describe('Dashboard page', () => {
     expect(screen.queryByText('Sunny')).toBeNull();
   });
 
+  it('shows offline device count in room card when a room device is dead', () => {
+    mockRooms = [makeRoom({ id: 1, name: 'Living Room' })];
+    mockDevices = [
+      makeDevice({ id: 1, roomID: 1, properties: { value: false, dead: true } }),
+      makeDevice({ id: 2, roomID: 1, properties: { value: false, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('1 offline')).toBeTruthy();
+    expect(screen.queryByText('All online')).toBeNull();
+  });
+
   it('shows thermostat temperature in room card', () => {
     mockRooms = [makeRoom({ id: 1, name: 'Bedroom' })];
     mockDevices = [
