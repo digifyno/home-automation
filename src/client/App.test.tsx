@@ -16,7 +16,7 @@ vi.mock('./hooks/useFibaro.ts', () => ({
 }));
 
 vi.mock('./hooks/useHealth.ts', () => ({
-  useHealth: vi.fn(() => ({ data: undefined, isError: false })),
+  useHealth: vi.fn(() => ({ data: undefined, isError: false, isLoading: true })),
 }));
 
 function renderApp() {
@@ -85,24 +85,32 @@ describe('App navigation', () => {
   });
 
   it('shows Live indicator when health status is ok', () => {
-    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'ok', fibaro: 'reachable' }, isError: false });
+    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'ok', fibaro: 'reachable' }, isError: false, isLoading: false } as unknown as ReturnType<typeof useHealth>);
     renderApp();
     expect(screen.getByText('Live')).toBeTruthy();
     expect(screen.queryByText('Offline')).toBeNull();
   });
 
   it('shows Offline indicator when health check errors', () => {
-    vi.mocked(useHealth).mockReturnValueOnce({ data: undefined, isError: true });
+    vi.mocked(useHealth).mockReturnValueOnce({ data: undefined, isError: true, isLoading: false } as unknown as ReturnType<typeof useHealth>);
     renderApp();
     expect(screen.getByText('Offline')).toBeTruthy();
     expect(screen.queryByText('Live')).toBeNull();
   });
 
   it('shows Degraded indicator when health status is degraded', () => {
-    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'degraded', fibaro: 'unreachable' }, isError: false });
+    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'degraded', fibaro: 'unreachable' }, isError: false, isLoading: false } as unknown as ReturnType<typeof useHealth>);
     renderApp();
     expect(screen.getByText('Degraded')).toBeTruthy();
     expect(screen.queryByText('Live')).toBeNull();
     expect(screen.queryByText('Offline')).toBeNull();
+  });
+
+  it('shows Checking indicator while health is loading', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: undefined, isError: false, isLoading: true } as unknown as ReturnType<typeof useHealth>);
+    renderApp();
+    expect(screen.getByText('Checking')).toBeTruthy();
+    expect(screen.queryByText('Offline')).toBeNull();
+    expect(screen.queryByText('Live')).toBeNull();
   });
 });
