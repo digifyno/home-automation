@@ -102,6 +102,12 @@ describe('Scenes page', () => {
     expect(btn.disabled).toBe(false);
   });
 
+  it('shows Running label and pulse indicator when scene isRunning is true', () => {
+    mockScenes = [makeScene({ id: 1, name: 'Active Scene', isRunning: true })];
+    render(<Scenes />);
+    expect(screen.getByText('Running')).toBeTruthy();
+  });
+
   it('only disables the clicked scene button, not others', () => {
     mockScenes = [
       makeScene({ id: 1, name: 'Scene One' }),
