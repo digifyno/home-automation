@@ -114,4 +114,30 @@ describe('Climate page', () => {
     render(<Climate />);
     expect(screen.getByText('No climate devices found')).toBeTruthy();
   });
+
+  it('shows target temperature arrow when thermostat has targetLevel defined', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Living Thermostat',
+        type: 'com.fibaro.hvacSystem',
+        properties: { value: 21, dead: false, targetLevel: 23 },
+      }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('→ 23°C')).toBeTruthy();
+  });
+
+  it('shows Offline label when thermostat device is dead', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Living Thermostat',
+        type: 'com.fibaro.hvacSystem',
+        properties: { value: 21, dead: true },
+      }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('Offline')).toBeTruthy();
+  });
 });
