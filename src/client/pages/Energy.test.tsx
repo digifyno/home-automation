@@ -139,4 +139,18 @@ describe('Energy page', () => {
     render(<Energy />);
     expect(screen.getByText('15.50')).toBeTruthy();
   });
+
+  it('shows Watts from device.properties.power for an energy meter that also reports power', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Smart Meter',
+        type: 'com.fibaro.electricMeter',
+        properties: { value: false, dead: false, power: 230.5, energy: 10.0 },
+      }),
+    ];
+    render(<Energy />);
+    expect(screen.getByText('230.5')).toBeTruthy();
+    expect(screen.getByText('Watts')).toBeTruthy();
+  });
 });
