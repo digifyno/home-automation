@@ -195,6 +195,15 @@ describe('executeScene', () => {
     expect(init.method).toBe('POST');
   });
 
+  it('sends Authorization header', async () => {
+    mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', {}));
+
+    await api.executeScene(7);
+
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer test-token');
+  });
+
   it('rejects when response is not ok', async () => {
     mockFetch.mockReturnValue(makeFetchResponse(false, 403, 'Forbidden', {}));
 
