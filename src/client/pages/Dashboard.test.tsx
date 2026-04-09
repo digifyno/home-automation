@@ -163,6 +163,25 @@ describe('Dashboard page', () => {
     expect(screen.queryByText('All online')).toBeNull();
   });
 
+  it('shows All online in room card when all room devices are online', () => {
+    mockRooms = [makeRoom({ id: 1, name: 'Living Room' })];
+    mockDevices = [
+      makeDevice({ id: 1, roomID: 1, properties: { value: false, dead: false } }),
+      makeDevice({ id: 2, roomID: 1, properties: { value: false, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('All online')).toBeTruthy();
+  });
+
+  it('shows lights-on count in room card when a light device is on', () => {
+    mockRooms = [makeRoom({ id: 1, name: 'Kitchen' })];
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.binarySwitch', roomID: 1, properties: { value: true, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('1 on')).toBeTruthy();
+  });
+
   it('shows thermostat temperature in room card', () => {
     mockRooms = [makeRoom({ id: 1, name: 'Bedroom' })];
     mockDevices = [
