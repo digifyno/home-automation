@@ -148,6 +148,15 @@ describe('Security page', () => {
     expect(screen.getByText('2 alerts active')).toBeTruthy();
   });
 
+  it('shows plural sensors tampered when 2 devices are tampered', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, tampered: true } }),
+      makeDevice({ id: 2, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, tampered: true } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('2 sensors tampered')).toBeTruthy();
+  });
+
   it('shows room name in device card when room is found', () => {
     mockRooms = [makeRoom({ id: 1, name: 'Hallway' })];
     mockDevices = [

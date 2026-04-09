@@ -152,6 +152,13 @@ describe('Lights page', () => {
     expect(btn.disabled).toBe(true);
   });
 
+  it('shows No lights found when there are no light devices', () => {
+    mockDevices = [];
+    render(<Lights />);
+    expect(screen.getByText('No lights found')).toBeTruthy();
+  });
+
+
   it('All Off button becomes disabled (pending) after clicking while mutations are in flight', () => {
     mockDevices = [makeLight({ id: 1, properties: { value: true, dead: false } })];
     // mutate does NOT call onSettled — simulates in-flight mutation
