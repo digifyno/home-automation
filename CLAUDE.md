@@ -29,7 +29,6 @@ src/
   server/           # Express.js backend API
     integrations/   # Smart home platform connectors
       fibaro/       # Fibaro HC3 integration
-      netatmo/      # Netatmo integration
     routes/         # API route handlers
     index.ts        # Server entry point
   client/           # React frontend
@@ -103,7 +102,6 @@ ALLOWED_ORIGIN=
 - Use environment variables for all secrets - never hardcode credentials
 - Write tests for integration connectors and critical UI logic
 - Tests use **vitest**; client hooks (`src/client/hooks/**`) run in the `jsdom` environment (configured via `environmentMatchGlobs` in `vitest.config.ts`)
-- Coverage reporting is not yet configured (`@vitest/coverage-v8` not installed; no `npm run coverage` command)
 
 ## Allowed Domains
 
