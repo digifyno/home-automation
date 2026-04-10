@@ -185,4 +185,21 @@ describe('Security page', () => {
     render(<Security />);
     expect(screen.getByText('Hallway')).toBeTruthy();
   });
+
+  it('shows singular "1 sensor monitored" in All Clear banner when 1 sensor present', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('1 sensor monitored')).toBeTruthy();
+  });
+
+  it('shows plural "N sensors monitored" in All Clear banner when multiple sensors present', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false } }),
+      makeDevice({ id: 2, type: 'com.fibaro.smokeDetector', properties: { value: false, dead: false } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('2 sensors monitored')).toBeTruthy();
+  });
 });
