@@ -122,4 +122,11 @@ describe('DeviceCard', () => {
     render(<DeviceCard device={makeDevice({ properties: { value: false, dead: false, power: 150 } })} />);
     expect(screen.getByText('150W')).toBeTruthy();
   });
+
+  it('renders toggle button for dimmer device type', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.dimmer2' })} />);
+    const btn = screen.getByRole('button');
+    const label = btn.getAttribute('aria-label') ?? '';
+    expect(label.includes('Turn on') || label.includes('Turn off')).toBe(true);
+  });
 });
