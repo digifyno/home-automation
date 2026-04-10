@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fibaroRouter from './routes/fibaro.js';
@@ -34,8 +35,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
+const fibaroLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests' },
+});
+
 // API routes
 app.use('/api/fibaro', requireAuth);
+app.use('/api/fibaro', fibaroLimiter);
 app.use('/api/fibaro', fibaroRouter);
 
 app.get('/api/health', async (_req, res) => {
