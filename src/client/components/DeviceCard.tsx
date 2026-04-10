@@ -59,6 +59,9 @@ export default function DeviceCard({ device }: Props) {
           </button>
         )}
       </div>
+      {action.isError && (
+        <p className="text-xs text-red-400 mt-1">Action failed</p>
+      )}
       <div className="mt-3">
         <p className="text-sm font-medium text-white truncate">{device.name}</p>
         <p className="text-xs text-gray-400 mt-0.5">

@@ -6,9 +6,11 @@ export default function Scenes() {
   const { data: scenes = [], isLoading, isError } = useScenes();
   const execute = useSceneExecute();
   const [pendingScenes, setPendingScenes] = useState<Set<number>>(new Set());
+  const [errorScenes, setErrorScenes] = useState<Set<number>>(new Set());
 
   const handleExecute = (id: number) => {
     setPendingScenes(prev => new Set(prev).add(id));
+    setErrorScenes(prev => { const s = new Set(prev); s.delete(id); return s; });
     execute.mutate(id, {
       onSettled: () => {
         setPendingScenes(prev => {
@@ -17,6 +19,7 @@ export default function Scenes() {
           return next;
         });
       },
+      onError: () => setErrorScenes(prev => new Set(prev).add(id)),
     });
   };
 
@@ -57,6 +60,9 @@ export default function Scenes() {
               </div>
               <p className="font-medium text-white">{scene.name}</p>
             </div>
+            {errorScenes.has(scene.id) && (
+              <p className="text-xs text-red-400 mt-3">Scene failed to run</p>
+            )}
             <button
               onClick={() => handleExecute(scene.id)}
               disabled={pendingScenes.has(scene.id)}

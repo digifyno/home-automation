@@ -10,6 +10,7 @@ export default function Lights() {
   const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
   const action = useDeviceAction();
   const [pendingOff, setPendingOff] = useState(false);
+  const [offError, setOffError] = useState(false);
 
   const lightDevices = devices.filter(d => {
     const cat = categorizeDevice(d.type);
@@ -27,9 +28,11 @@ export default function Lights() {
     const onDevices = filtered.filter(d => isDeviceOn(d));
     if (onDevices.length === 0) return;
     setPendingOff(true);
+    setOffError(false);
     let remaining = onDevices.length;
     onDevices.forEach(d =>
       action.mutate({ id: d.id, action: 'turnOff' }, {
+        onError: () => setOffError(true),
         onSettled: () => {
           remaining--;
           if (remaining === 0) setPendingOff(false);
@@ -66,13 +69,16 @@ export default function Lights() {
           </h2>
           <p className="text-gray-400 text-sm mt-1">{lightsOnCount} of {lightDevices.length} on</p>
         </div>
-        <button
-          onClick={turnAllOff}
-          disabled={filteredOnCount === 0 || pendingOff}
-          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
-        >
-          All Off
-        </button>
+        <div className="flex flex-col items-end gap-1">
+          <button
+            onClick={turnAllOff}
+            disabled={filteredOnCount === 0 || pendingOff}
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
+          >
+            All Off
+          </button>
+          {offError && <span className="text-xs text-red-400">Some lights failed to turn off</span>}
+        </div>
       </div>
 
       {/* Room filter */}
