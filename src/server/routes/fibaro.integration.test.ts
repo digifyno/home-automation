@@ -130,6 +130,8 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ result: 'ok' });
+    expect(mockPost).toHaveBeenCalledOnce();
+    expect(mockPost).toHaveBeenCalledWith('/api/devices/10/action/turnOn', {});
   });
 
   it('returns 502 when Fibaro post fails', async () => {
@@ -150,6 +152,7 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ result: 'ok' });
     expect(mockPost).toHaveBeenCalledOnce();
+    expect(mockPost).toHaveBeenCalledWith('/api/devices/10/action/setValue', { value: 50 });
   });
 
   it('returns 200 for valid setBrightness body', async () => {
@@ -161,6 +164,7 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ result: 'ok' });
     expect(mockPost).toHaveBeenCalledOnce();
+    expect(mockPost).toHaveBeenCalledWith('/api/devices/10/action/setBrightness', { value: 75 });
   });
 
   it('returns 200 for valid setColor body', async () => {
@@ -172,6 +176,7 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ result: 'ok' });
     expect(mockPost).toHaveBeenCalledOnce();
+    expect(mockPost).toHaveBeenCalledWith('/api/devices/10/action/setColor', { value: '255,128,0,0' });
   });
 });
 
@@ -222,6 +227,8 @@ describe('POST /api/fibaro/scenes/:id/execute', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ result: 'started' });
+    expect(mockPost).toHaveBeenCalledOnce();
+    expect(mockPost).toHaveBeenCalledWith('/api/scenes/5/action/start');
   });
 
   it('returns 502 when Fibaro post fails', async () => {
