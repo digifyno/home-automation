@@ -140,6 +140,39 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(res.status).toBe(502);
     expect(res.body).toEqual({ error: 'Failed to execute device action' });
   });
+
+  it('returns 200 for valid setValue body', async () => {
+    mockPost.mockResolvedValueOnce({ data: { result: 'ok' } });
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setValue')
+      .set(AUTH)
+      .send({ value: 50 });
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ result: 'ok' });
+    expect(mockPost).toHaveBeenCalledOnce();
+  });
+
+  it('returns 200 for valid setBrightness body', async () => {
+    mockPost.mockResolvedValueOnce({ data: { result: 'ok' } });
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setBrightness')
+      .set(AUTH)
+      .send({ value: 75 });
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ result: 'ok' });
+    expect(mockPost).toHaveBeenCalledOnce();
+  });
+
+  it('returns 200 for valid setColor body', async () => {
+    mockPost.mockResolvedValueOnce({ data: { result: 'ok' } });
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setColor')
+      .set(AUTH)
+      .send({ value: '255,128,0,0' });
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ result: 'ok' });
+    expect(mockPost).toHaveBeenCalledOnce();
+  });
 });
 
 describe('GET /api/fibaro/scenes', () => {
