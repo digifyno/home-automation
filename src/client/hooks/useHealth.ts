@@ -8,7 +8,11 @@ interface HealthStatus {
 export function useHealth() {
   return useQuery<HealthStatus>({
     queryKey: ['health'],
-    queryFn: () => fetch('/api/health').then(r => r.json()),
+    queryFn: () =>
+      fetch('/api/health').then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json() as Promise<HealthStatus>;
+      }),
     refetchInterval: 30000,
     retry: false,
   });

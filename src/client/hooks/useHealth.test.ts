@@ -76,6 +76,22 @@ describe('useHealth', () => {
     expect(headers?.['Authorization']).toBeUndefined();
   });
 
+  it('sets isError=true when response is not ok (non-JSON HTTP error)', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 502,
+      statusText: 'Bad Gateway',
+      json: () => Promise.reject(new SyntaxError('unexpected token')),
+    });
+    vi.stubGlobal('fetch', mockFetch);
+
+    const queryClient = makeQueryClient();
+    const { result } = renderHook(() => useHealth(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
+  });
+
   it('configures refetchInterval of 30000', () => {
     const mockFetch = makeMockFetch({ status: 'ok', fibaro: 'reachable' });
     vi.stubGlobal('fetch', mockFetch);
