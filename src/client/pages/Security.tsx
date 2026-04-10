@@ -52,7 +52,7 @@ export default function Security() {
               <CheckCircle className="text-green-400" size={24} />
               <div>
                 <p className="font-semibold text-green-300">All Clear</p>
-                <p className="text-sm text-green-400">{safetyDevices.length} sensors monitored</p>
+                <p className="text-sm text-green-400">{safetyDevices.length} sensor{safetyDevices.length !== 1 ? 's' : ''} monitored</p>
               </div>
             </>
           ) : (
