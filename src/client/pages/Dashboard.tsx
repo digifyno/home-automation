@@ -39,7 +39,7 @@ export default function Dashboard() {
       cat === 'safety' && isDeviceOn(d)
     ).length;
     const offlineDevices = devices.filter(d => d.properties.dead).length;
-    const totalPower = devices.reduce((sum, d) => sum + (d.properties.power ?? 0), 0);
+    const totalPower = devices.filter(d => !d.properties.dead).reduce((sum, d) => sum + (d.properties.power ?? 0), 0);
     const thermostats = categories.filter(({ cat }) => cat === 'thermostat').map(({ device }) => device);
     const avgTemp = thermostats.length > 0
       ? (thermostats.reduce((s, d) => s + (typeof d.properties.value === 'number' ? d.properties.value : 0), 0) / thermostats.length).toFixed(1)
