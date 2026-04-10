@@ -173,6 +173,14 @@ describe('Dashboard page', () => {
     expect(screen.getByText('All online')).toBeTruthy();
   });
 
+  it('shows no online/offline status in room card when room has no devices', () => {
+    mockRooms = [makeRoom({ id: 1, name: 'Empty Room' })];
+    mockDevices = [];
+    render(<Dashboard />);
+    expect(screen.queryByText('All online')).toBeNull();
+    expect(screen.queryByText(/offline/)).toBeNull();
+  });
+
   it('shows lights-on count in room card when a light device is on', () => {
     mockRooms = [makeRoom({ id: 1, name: 'Kitchen' })];
     mockDevices = [

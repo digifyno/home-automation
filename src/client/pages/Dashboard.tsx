@@ -174,7 +174,7 @@ export default function Dashboard() {
                     {typeof roomTemp.properties.value === 'number' ? `${roomTemp.properties.value}°C` : '--'}
                   </span>
                 )}
-                {roomDevices.every(d => !d.properties.dead) ? (
+                {roomDevices.length === 0 ? null : roomDevices.every(d => !d.properties.dead) ? (
                   <span className="text-green-400 text-xs">All online</span>
                 ) : (
                   <span className="text-red-400 text-xs">{roomDevices.filter(d => d.properties.dead).length} offline</span>
