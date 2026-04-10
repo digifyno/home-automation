@@ -117,7 +117,7 @@ export default function Dashboard() {
           icon={<Thermometer size={20} />}
           label="Avg Indoor"
           value={`${avgTemp}°C`}
-          sub={`${thermostats.length} thermostats`}
+          sub={`${thermostats.length} thermostat${thermostats.length !== 1 ? 's' : ''}`}
           color="text-orange-400"
         />
         <StatCard

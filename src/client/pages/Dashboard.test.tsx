@@ -197,7 +197,16 @@ describe('Dashboard page', () => {
     ];
     render(<Dashboard />);
     expect(screen.getByText('21.0°C')).toBeTruthy();
-    expect(screen.getByText('1 thermostats')).toBeTruthy();
+    expect(screen.getByText('1 thermostat')).toBeTruthy();
+  });
+
+  it('shows plural thermostats label when multiple thermostats are present', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.hvacSystem', properties: { value: 21, dead: false } }),
+      makeDevice({ id: 2, type: 'com.fibaro.hvacSystem', properties: { value: 22, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('2 thermostats')).toBeTruthy();
   });
 
   it('shows Power Usage stat card with summed device watts', () => {
