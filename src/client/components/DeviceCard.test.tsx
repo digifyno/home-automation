@@ -6,12 +6,16 @@ import type { FibaroDevice } from '../../shared/types';
 
 const mockMutate = vi.fn();
 
-const { mockIsPending } = vi.hoisted(() => ({ mockIsPending: { value: false } }));
+const { mockIsPending, mockIsError } = vi.hoisted(() => ({
+  mockIsPending: { value: false },
+  mockIsError: { value: false },
+}));
 
 vi.mock('../hooks/useFibaro.ts', () => ({
   useDeviceAction: () => ({
     mutate: mockMutate,
     isPending: mockIsPending.value,
+    isError: mockIsError.value,
   }),
 }));
 
@@ -43,6 +47,7 @@ describe('DeviceCard', () => {
   beforeEach(() => {
     mockMutate.mockClear();
     mockIsPending.value = false;
+    mockIsError.value = false;
   });
 
   it('renders device name', () => {
@@ -121,6 +126,12 @@ describe('DeviceCard', () => {
   it('shows power in watts when device has power property', () => {
     render(<DeviceCard device={makeDevice({ properties: { value: false, dead: false, power: 150 } })} />);
     expect(screen.getByText('150W')).toBeTruthy();
+  });
+
+  it('shows Action failed text when action.isError is true', () => {
+    mockIsError.value = true;
+    render(<DeviceCard device={makeDevice({ properties: { value: false, dead: false } })} />);
+    expect(screen.getByText('Action failed')).toBeTruthy();
   });
 
   it('renders toggle button for dimmer device type', () => {

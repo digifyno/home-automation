@@ -159,6 +159,17 @@ describe('Lights page', () => {
   });
 
 
+  it('shows error message after All Off batch has at least one failure', () => {
+    mockDevices = [makeLight({ id: 1, properties: { value: true, dead: false } })];
+    mockMutate.mockImplementation((_args: unknown, opts: { onError?: () => void; onSettled?: () => void }) => {
+      opts.onError?.();
+      opts.onSettled?.();
+    });
+    render(<Lights />);
+    fireEvent.click(screen.getByText('All Off'));
+    expect(screen.getByText('Some lights failed to turn off')).toBeTruthy();
+  });
+
   it('All Off button becomes disabled (pending) after clicking while mutations are in flight', () => {
     mockDevices = [makeLight({ id: 1, properties: { value: true, dead: false } })];
     // mutate does NOT call onSettled — simulates in-flight mutation

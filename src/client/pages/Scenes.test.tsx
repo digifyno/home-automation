@@ -108,6 +108,39 @@ describe('Scenes page', () => {
     expect(screen.getByText('Running')).toBeTruthy();
   });
 
+  it('shows scene-level error indicator when mutate calls onError', () => {
+    mockScenes = [makeScene({ id: 1, name: 'My Scene' })];
+    mockMutate.mockImplementation((_id: number, opts: { onSettled?: () => void; onError?: () => void }) => {
+      opts.onError?.();
+      opts.onSettled?.();
+    });
+    render(<Scenes />);
+    fireEvent.click(screen.getByText('Run Scene'));
+    expect(screen.getByText('Scene failed to run')).toBeTruthy();
+  });
+
+  it('shows error indicator only for the failed scene, not the successful one', () => {
+    mockScenes = [
+      makeScene({ id: 1, name: 'Failing Scene' }),
+      makeScene({ id: 2, name: 'Good Scene' }),
+    ];
+    // Only first mutate call triggers onError
+    mockMutate.mockImplementationOnce((_id: number, opts: { onSettled?: () => void; onError?: () => void }) => {
+      opts.onError?.();
+      opts.onSettled?.();
+    });
+    mockMutate.mockImplementationOnce((_id: number, opts: { onSettled?: () => void }) => {
+      opts.onSettled?.();
+    });
+    render(<Scenes />);
+    const buttons = screen.getAllByText('Run Scene').map(el => el.closest('button') as HTMLButtonElement);
+    fireEvent.click(buttons[0]); // click Failing Scene
+    fireEvent.click(buttons[1]); // click Good Scene
+    expect(screen.getByText('Scene failed to run')).toBeTruthy();
+    // Only one error message should appear
+    expect(screen.getAllByText('Scene failed to run')).toHaveLength(1);
+  });
+
   it('only disables the clicked scene button, not others', () => {
     mockScenes = [
       makeScene({ id: 1, name: 'Scene One' }),
