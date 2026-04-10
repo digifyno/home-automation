@@ -98,7 +98,7 @@ ALLOWED_ORIGIN=
 - Use functional React components with hooks
 - Use TypeScript strict mode - no `any` types
 - API responses should be typed with shared interfaces
-- Error handling: wrap all API calls with proper error boundaries
+- Error handling: wrap all API calls with proper error boundaries; for `fetch` calls, always check `r.ok` before calling `r.json()` — a non-2xx response (e.g. nginx error page) is not valid JSON and will throw a misleading parse error otherwise
 - Use environment variables for all secrets - never hardcode credentials
 - Write tests for integration connectors and critical UI logic
 - Tests use **vitest**; client hooks (`src/client/hooks/**`) run in the `jsdom` environment (configured via `environmentMatchGlobs` in `vitest.config.ts`)
