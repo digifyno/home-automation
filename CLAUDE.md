@@ -46,15 +46,17 @@ src/
 
 - **URL**: `http://192.168.1.35` (routed via Tailscale subnet routing through rsiw1)
 - **Auth**: Basic auth using environment variables `FIBARO_USERNAME` and `FIBARO_PASSWORD`
-- **API Docs**: Fibaro HC3 uses a REST API. Key endpoints:
-  - `GET /api/devices` - List all devices
-  - `GET /api/devices/{id}` - Device details
-  - `POST /api/devices/{id}/action/{actionName}` - Trigger device action (e.g., `turnOn`, `turnOff`, `setValue`)
-  - `GET /api/rooms` - List rooms
-  - `GET /api/scenes` - List scenes
-  - `POST /api/scenes/{id}/execute` - Execute a scene
-  - `GET /api/weather` - Weather data
-  - `GET /api/panels/location` - Location/sunrise/sunset info
+- **Rate limit**: All `/api/fibaro` routes are protected by `fibaroLimiter` (120 req/min); exceeding the limit returns HTTP 429 `{ error: 'Too many requests' }`
+- **API Docs**: Fibaro HC3 uses a REST API. Key endpoints (all under `/api/fibaro/` prefix on this server):
+  - `GET /api/fibaro/devices` - List all devices
+  - `GET /api/fibaro/devices/{id}` - Device details
+  - `POST /api/fibaro/devices/{id}/action/{actionName}` - Trigger device action (e.g., `turnOn`, `turnOff`, `setValue`, `setBrightness`, `setColor`, `open`, `close`, `toggle`)
+  - `GET /api/fibaro/rooms` - List rooms
+  - `GET /api/fibaro/scenes` - List scenes
+  - `POST /api/fibaro/scenes/{id}/execute` - Execute a scene
+  - `GET /api/fibaro/weather` - Weather data
+  - `GET /api/fibaro/energy` - Energy device data
+  - `GET /api/health` - Health check (unauthenticated); returns 200 when Fibaro is reachable, 503 when degraded
 
 ### Netatmo
 
