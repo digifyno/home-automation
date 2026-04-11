@@ -40,6 +40,7 @@ describe('GET /api/health', () => {
     expect(res.body.status).toBe('ok');
     expect(res.body.fibaro).toBe('reachable');
     expect(res.body.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(mockGet).toHaveBeenCalledWith('/api/loginStatus', { timeout: 3000 });
   });
 
   it('returns 503 with status degraded when Fibaro is unreachable', async () => {

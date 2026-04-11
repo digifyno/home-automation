@@ -79,6 +79,7 @@ describe('GET /api/fibaro/devices', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
     expect(res.body).toEqual([{ id: 1 }]);
+    expect(mockGet).toHaveBeenCalledWith('/api/devices');
   });
 
   it('returns 502 when Fibaro client throws', async () => {
@@ -193,6 +194,7 @@ describe('GET /api/fibaro/scenes', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
     expect(res.body).toEqual([{ id: 1, name: 'Morning', isRunning: false }]);
+    expect(mockGet).toHaveBeenCalledWith('/api/scenes');
   });
 
   it('returns 502 when Fibaro throws', async () => {
@@ -254,6 +256,7 @@ describe('GET /api/fibaro/rooms', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
     expect(res.body).toEqual([{ id: 1, name: 'Living Room' }]);
+    expect(mockGet).toHaveBeenCalledWith('/api/rooms');
   });
 
   it('returns 502 when Fibaro throws', async () => {
@@ -278,6 +281,7 @@ describe('GET /api/fibaro/devices/:id', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ id: 42, name: 'Lamp' });
+    expect(mockGet).toHaveBeenCalledWith('/api/devices/42');
   });
 
   it('returns 400 for a non-numeric device ID', async () => {
@@ -327,6 +331,7 @@ describe('GET /api/fibaro/weather', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ temperature: 21.5 });
+    expect(mockGet).toHaveBeenCalledWith('/api/weather');
   });
 
   it('returns 502 when Fibaro throws', async () => {
@@ -352,6 +357,7 @@ describe('GET /api/fibaro/energy', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
     expect(res.body).toEqual([{ id: 1, power: 100 }]);
+    expect(mockGet).toHaveBeenCalledWith('/api/energyDevices');
   });
 
   it('returns 502 when Fibaro throws', async () => {
