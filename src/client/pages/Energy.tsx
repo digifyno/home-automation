@@ -8,7 +8,9 @@ export default function Energy() {
   const { data: rooms = [] } = useRooms();
   const { data: energyData = [] } = useEnergy();
 
-  const powerDevices = devices.filter(d => d.properties.power !== undefined && d.properties.power > 0);
+  const powerDevices = devices.filter(d =>
+    d.properties.power !== undefined && d.properties.power > 0 && !d.properties.dead
+  );
   const energyMeters = devices.filter(d => categorizeDevice(d.type) === 'energy');
   const totalPower = powerDevices.reduce((sum, d) => sum + (d.properties.power ?? 0), 0);
 

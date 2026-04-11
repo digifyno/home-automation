@@ -140,6 +140,26 @@ describe('Energy page', () => {
     expect(screen.getByText('15.50')).toBeTruthy();
   });
 
+  it('excludes dead devices from total power', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Heater', properties: { value: true, dead: false, power: 1000 } }),
+      makeDevice({ id: 2, name: 'Dead Meter', properties: { value: true, dead: true, power: 500 } }),
+    ];
+    render(<Energy />);
+    expect(screen.getByText('1000')).toBeTruthy();
+  });
+
+  it('does not include dead devices in active consumers', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Live Device', properties: { value: true, dead: false, power: 300 } }),
+      makeDevice({ id: 2, name: 'Dead Device', properties: { value: true, dead: true, power: 800 } }),
+    ];
+    render(<Energy />);
+    const section = screen.getByText('Active Consumers').closest('div');
+    expect(section?.textContent).toContain('Live Device');
+    expect(section?.textContent).not.toContain('Dead Device');
+  });
+
   it('shows Watts from device.properties.power for an energy meter that also reports power', () => {
     mockDevices = [
       makeDevice({
