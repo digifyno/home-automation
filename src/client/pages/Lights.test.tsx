@@ -170,6 +170,25 @@ describe('Lights page', () => {
     expect(screen.getByText('Some lights failed to turn off')).toBeTruthy();
   });
 
+  it('All Off button re-enables after all mutations settle successfully', () => {
+    mockDevices = [
+      makeLight({ id: 1, properties: { value: true, dead: false } }),
+      makeLight({ id: 2, properties: { value: true, dead: false } }),
+    ];
+    // Simulate successful mutations: call onSettled immediately, no onError
+    mockMutate.mockImplementation((_args: unknown, opts: { onSettled?: () => void }) => {
+      opts.onSettled?.();
+    });
+    render(<Lights />);
+    const btn = screen.getByText('All Off').closest('button') as HTMLButtonElement;
+    expect(btn.disabled).toBe(false);
+    fireEvent.click(btn);
+    // After all onSettled callbacks fire, button should be re-enabled
+    expect(btn.disabled).toBe(false);
+    // No error message should be shown
+    expect(screen.queryByText('Some lights failed to turn off')).toBeNull();
+  });
+
   it('All Off button becomes disabled (pending) after clicking while mutations are in flight', () => {
     mockDevices = [makeLight({ id: 1, properties: { value: true, dead: false } })];
     // mutate does NOT call onSettled — simulates in-flight mutation
