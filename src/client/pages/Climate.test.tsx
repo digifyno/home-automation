@@ -140,4 +140,20 @@ describe('Climate page', () => {
     render(<Climate />);
     expect(screen.getByText('Offline')).toBeTruthy();
   });
+
+  it('shows Offline label when temperature sensor is dead', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Bedroom Temp', type: 'com.fibaro.temperatureSensor', properties: { value: 19, dead: true } }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('Offline')).toBeTruthy();
+  });
+
+  it('shows Offline label when humidity sensor is dead', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Bathroom Hum', type: 'com.fibaro.humiditySensor', properties: { value: 65, dead: true } }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('Offline')).toBeTruthy();
+  });
 });
