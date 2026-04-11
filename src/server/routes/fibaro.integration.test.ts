@@ -167,6 +167,22 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(res.body).toEqual({ error: 'Failed to execute device action' });
   });
 
+  it('invalidates device cache so next GET returns fresh data', async () => {
+    // Populate cache
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Old' }] });
+    await request(app).get('/api/fibaro/devices').set(AUTH);
+
+    // POST action (success)
+    mockPost.mockResolvedValueOnce({ data: { result: 'ok' } });
+    await request(app).post('/api/fibaro/devices/1/action/turnOn').set(AUTH);
+
+    // Next GET should fetch fresh data (cache was invalidated)
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Fresh' }] });
+    const res = await request(app).get('/api/fibaro/devices').set(AUTH);
+    expect(res.body).toEqual([{ id: 1, name: 'Fresh' }]);
+    expect(mockGet).toHaveBeenCalledTimes(2); // called twice: initial + post-invalidation
+  });
+
   it('returns 200 for valid setValue body', async () => {
     mockPost.mockResolvedValueOnce({ data: { result: 'ok' } });
     const res = await request(app)
@@ -263,6 +279,22 @@ describe('POST /api/fibaro/scenes/:id/execute', () => {
       .set(AUTH);
     expect(res.status).toBe(502);
     expect(res.body).toEqual({ error: 'Failed to execute scene' });
+  });
+
+  it('invalidates scene cache so next GET returns fresh data', async () => {
+    // Populate cache
+    mockGet.mockResolvedValueOnce({ data: [{ id: 5, name: 'Old Scene', isRunning: false }] });
+    await request(app).get('/api/fibaro/scenes').set(AUTH);
+
+    // POST execute (success)
+    mockPost.mockResolvedValueOnce({ data: { result: 'started' } });
+    await request(app).post('/api/fibaro/scenes/5/execute').set(AUTH);
+
+    // Next GET should fetch fresh data (cache was invalidated)
+    mockGet.mockResolvedValueOnce({ data: [{ id: 5, name: 'Old Scene', isRunning: true }] });
+    const res = await request(app).get('/api/fibaro/scenes').set(AUTH);
+    expect(res.body[0].isRunning).toBe(true);
+    expect(mockGet).toHaveBeenCalledTimes(2);
   });
 });
 
