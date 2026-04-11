@@ -1,24 +1,26 @@
 import axios from 'axios';
 
-const fibaroBaseUrl = process.env.FIBARO_URL;
-const username = process.env.FIBARO_USERNAME;
-const password = process.env.FIBARO_PASSWORD;
-
-if (!fibaroBaseUrl || !username || !password) {
-  const missing = [
-    !fibaroBaseUrl && 'FIBARO_URL',
-    !username && 'FIBARO_USERNAME',
-    !password && 'FIBARO_PASSWORD',
-  ].filter(Boolean).join(', ');
-  console.error(`FATAL: Missing required environment variables: ${missing}`);
-  process.exit(1);
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`FATAL: Missing required environment variable: ${name}`);
+    process.exit(1);
+  }
+  return value;
 }
 
-export const fibaroClient = axios.create({
-  baseURL: fibaroBaseUrl,
-  auth: { username, password },
-  timeout: 10000,
-});
+function createFibaroClient() {
+  return axios.create({
+    baseURL: requireEnv('FIBARO_URL'),
+    auth: {
+      username: requireEnv('FIBARO_USERNAME'),
+      password: requireEnv('FIBARO_PASSWORD'),
+    },
+    timeout: 10000,
+  });
+}
+
+export const fibaroClient = createFibaroClient();
 
 interface CacheEntry<T> {
   data: T;
