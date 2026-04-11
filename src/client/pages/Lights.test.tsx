@@ -158,6 +158,19 @@ describe('Lights page', () => {
     expect(screen.getByText('No lights found')).toBeTruthy();
   });
 
+  it('does not show room filter button for rooms that have no light devices', () => {
+    mockDevices = [
+      makeLight({ id: 1, name: 'Kitchen Light', roomID: 1 }),
+    ];
+    mockRooms = [
+      makeRoom({ id: 1, name: 'Kitchen' }),   // has a light device
+      makeRoom({ id: 2, name: 'Office' }),    // no light devices
+    ];
+    render(<Lights />);
+    expect(screen.getByText('Kitchen')).toBeTruthy();
+    expect(screen.queryByText('Office')).toBeNull();
+  });
+
 
   it('shows error message after All Off batch has at least one failure', () => {
     mockDevices = [makeLight({ id: 1, properties: { value: true, dead: false } })];
