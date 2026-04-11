@@ -167,6 +167,16 @@ describe('useRooms', () => {
     expect(opts?.queryKey).toEqual(['rooms']);
     expect(opts?.queryFn).toBe(mockGetRooms);
   });
+
+  it('sets isError=true when api.getRooms rejects', async () => {
+    mockGetRooms.mockRejectedValue(new Error('network failure'));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const { result } = renderHook(() => useRooms(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
+  });
 });
 
 describe('useDevices', () => {
@@ -180,6 +190,16 @@ describe('useDevices', () => {
     expect(opts?.queryKey).toEqual(['devices']);
     expect(opts?.queryFn).toBe(mockGetDevices);
     expect(opts?.refetchInterval).toBe(30000);
+  });
+
+  it('sets isError=true when api.getDevices rejects', async () => {
+    mockGetDevices.mockRejectedValue(new Error('network failure'));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const { result } = renderHook(() => useDevices(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
   });
 });
 
@@ -195,6 +215,16 @@ describe('useScenes', () => {
     expect(opts?.queryFn).toBe(mockGetScenes);
     expect(opts?.refetchInterval).toBe(60000);
   });
+
+  it('sets isError=true when api.getScenes rejects', async () => {
+    mockGetScenes.mockRejectedValue(new Error('network failure'));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const { result } = renderHook(() => useScenes(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
+  });
 });
 
 describe('useWeather', () => {
@@ -209,6 +239,16 @@ describe('useWeather', () => {
     expect(opts?.queryFn).toBe(mockGetWeather);
     expect(opts?.refetchInterval).toBe(60000);
   });
+
+  it('sets isError=true when api.getWeather rejects', async () => {
+    mockGetWeather.mockRejectedValue(new Error('network failure'));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const { result } = renderHook(() => useWeather(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
+  });
 });
 
 describe('useEnergy', () => {
@@ -222,5 +262,15 @@ describe('useEnergy', () => {
     expect(opts?.queryKey).toEqual(['energy']);
     expect(opts?.queryFn).toBe(mockGetEnergy);
     expect(opts?.refetchInterval).toBe(30000);
+  });
+
+  it('sets isError=true when api.getEnergy rejects', async () => {
+    mockGetEnergy.mockRejectedValue(new Error('network failure'));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const { result } = renderHook(() => useEnergy(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
   });
 });
