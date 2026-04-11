@@ -160,6 +160,33 @@ describe('Energy page', () => {
     expect(section?.textContent).not.toContain('Dead Device');
   });
 
+  it('shows Offline label for a dead energy meter', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Dead Meter',
+        type: 'com.fibaro.electricMeter',
+        properties: { value: false, dead: true, energy: 5.0 },
+      }),
+    ];
+    render(<Energy />);
+    expect(screen.getByText('Offline')).toBeTruthy();
+    expect(screen.getByText('Dead Meter')).toBeTruthy();
+  });
+
+  it('does not show Offline label for a live energy meter', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Live Meter',
+        type: 'com.fibaro.electricMeter',
+        properties: { value: false, dead: false, energy: 5.0 },
+      }),
+    ];
+    render(<Energy />);
+    expect(screen.queryByText('Offline')).toBeNull();
+  });
+
   it('shows Watts from device.properties.power for an energy meter that also reports power', () => {
     mockDevices = [
       makeDevice({

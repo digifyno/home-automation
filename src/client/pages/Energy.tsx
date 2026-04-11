@@ -100,6 +100,9 @@ export default function Energy() {
                 <div key={device.id} className="bg-gray-800 rounded-xl p-5 border border-gray-700">
                   <p className="text-xs text-gray-400">{room?.name}</p>
                   <p className="font-medium text-white mt-1">{device.name}</p>
+                  {device.properties.dead && (
+                    <span className="text-xs font-medium text-red-400">Offline</span>
+                  )}
                   <div className="mt-3 flex gap-4">
                     {device.properties.power !== undefined && (
                       <div>
