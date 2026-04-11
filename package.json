@@ -10,7 +10,8 @@
     "build:server": "tsc --project tsconfig.server.json",
     "start": "NODE_ENV=production node dist/server/index.js",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --coverage",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "dependencies": {
