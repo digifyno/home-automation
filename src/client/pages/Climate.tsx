@@ -114,6 +114,9 @@ export default function Climate() {
                   <p className="text-2xl font-bold text-blue-400 mt-2">
                     {typeof device.properties.value === 'number' ? device.properties.value : '--'}°C
                   </p>
+                  {device.properties.dead && (
+                    <p className="text-xs text-red-400 mt-1">Offline</p>
+                  )}
                 </div>
               );
             })}
@@ -135,6 +138,9 @@ export default function Climate() {
                   <p className="text-2xl font-bold text-blue-400 mt-2">
                     {typeof device.properties.value === 'number' ? device.properties.value : '--'}%
                   </p>
+                  {device.properties.dead && (
+                    <p className="text-xs text-red-400 mt-1">Offline</p>
+                  )}
                 </div>
               );
             })}
