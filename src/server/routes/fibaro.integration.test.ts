@@ -18,6 +18,7 @@ vi.mock('axios', () => ({
 // Import after mocks are registered
 import fibaroRouter from './fibaro.js';
 import { invalidateCache } from '../integrations/fibaro/client.js';
+import rateLimit from 'express-rate-limit';
 
 // Replicate the auth middleware from index.ts (API_TOKEN set to 'test-token' in test-setup.ts)
 const API_TOKEN = process.env.API_TOKEN!;
@@ -63,6 +64,28 @@ describe('requireAuth middleware', () => {
       .get('/api/fibaro/devices')
       .set(AUTH);
     expect(res.status).toBe(200);
+  });
+});
+
+describe('rate limiter', () => {
+  const limiterApp = express();
+  limiterApp.use(express.json());
+  limiterApp.use('/api/fibaro', requireAuth);
+  limiterApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
+  limiterApp.use('/api/fibaro', fibaroRouter);
+
+  beforeEach(() => {
+    mockGet.mockReset();
+    mockGet.mockResolvedValue({ data: [] });
+    invalidateCache('/api/devices');
+  });
+
+  it('returns 429 after exceeding the limit', async () => {
+    await request(limiterApp).get('/api/fibaro/devices').set(AUTH);
+    await request(limiterApp).get('/api/fibaro/devices').set(AUTH);
+    const res = await request(limiterApp).get('/api/fibaro/devices').set(AUTH);
+    expect(res.status).toBe(429);
+    expect(res.body).toEqual({ error: 'Too many requests' });
   });
 });
 
