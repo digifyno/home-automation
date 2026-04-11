@@ -98,6 +98,23 @@ describe('cachedGet', () => {
     expect(result2).toEqual([{ id: 1 }]);
   });
 
+  it('propagates rejection to all concurrent callers when inflight fails', async () => {
+    let rejectRequest!: (reason: Error) => void;
+    const pendingRequest = new Promise<{ data: unknown }>((_, reject) => {
+      rejectRequest = reject;
+    });
+    mockGet.mockReturnValueOnce(pendingRequest);
+
+    const p1 = cachedGet('/api/devices');
+    const p2 = cachedGet('/api/devices');
+
+    rejectRequest(new Error('network failure'));
+
+    await expect(p1).rejects.toThrow('network failure');
+    await expect(p2).rejects.toThrow('network failure');
+    expect(mockGet).toHaveBeenCalledTimes(1);
+  });
+
   it('does not cache failed responses', async () => {
     invalidateCache('/api/devices');
     mockGet.mockRejectedValueOnce(new Error('timeout'));
