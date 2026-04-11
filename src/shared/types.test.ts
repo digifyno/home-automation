@@ -67,6 +67,10 @@ describe('categorizeDevice', () => {
   it('classifies type containing shutter as shutter', () => {
     expect(categorizeDevice('com.fibaro.shutterWithMotor')).toBe('shutter');
   });
+
+  it('classifies motionDetector as sensor (Detector suffix catch-all)', () => {
+    expect(categorizeDevice('com.fibaro.motionDetector')).toBe('sensor');
+  });
 });
 
 describe('isDeviceOn', () => {
@@ -94,7 +98,7 @@ describe('isDeviceOn', () => {
     expect(isDeviceOn(makeDevice(50))).toBe(true);
   });
 
-  it('returns true when value is 1', () => {
-    expect(isDeviceOn(makeDevice(1))).toBe(true);
+  it('returns false when value is string \'false\'', () => {
+    expect(isDeviceOn(makeDevice('false'))).toBe(false);
   });
 });
