@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
@@ -73,6 +73,28 @@ describe('useDeviceAction', () => {
 
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['devices'] });
   });
+
+  it('sets isError=true when api.deviceAction rejects', async () => {
+    mockDeviceAction.mockRejectedValue(new Error('network failure'));
+    const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false }, queries: { retry: false } } });
+
+    const { result } = renderHook(() => useDeviceAction(), {
+      wrapper: makeWrapper(queryClient),
+    });
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync({ id: 42, action: 'turnOn' });
+      } catch {
+        // expected
+      }
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+    expect(result.current.error).toBeInstanceOf(Error);
+  });
 });
 
 describe('useSceneExecute', () => {
@@ -105,6 +127,28 @@ describe('useSceneExecute', () => {
     });
 
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['scenes'] });
+  });
+
+  it('sets isError=true when api.executeScene rejects', async () => {
+    mockExecuteScene.mockRejectedValue(new Error('fibaro down'));
+    const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false }, queries: { retry: false } } });
+
+    const { result } = renderHook(() => useSceneExecute(), {
+      wrapper: makeWrapper(queryClient),
+    });
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync(7);
+      } catch {
+        // expected
+      }
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+    expect(result.current.error).toBeInstanceOf(Error);
   });
 });
 
