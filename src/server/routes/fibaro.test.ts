@@ -72,6 +72,14 @@ describe('validateActionBody', () => {
     it.each(['setValue', 'setBrightness'])('%s: returns null for value = 100 (just over max)', (action) => {
       expect(validateActionBody(action, { value: 100 })).toBeNull();
     });
+
+    it.each(['setValue', 'setBrightness'])('%s: returns null for float value', (action) => {
+      expect(validateActionBody(action, { value: 50.5 })).toBeNull();
+    });
+
+    it.each(['setValue', 'setBrightness'])('%s: returns null for 99.9 (float at boundary)', (action) => {
+      expect(validateActionBody(action, { value: 99.9 })).toBeNull();
+    });
   });
 
   describe('setColor', () => {

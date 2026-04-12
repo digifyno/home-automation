@@ -20,6 +20,7 @@ export function validateActionBody(action: string, body: unknown): ActionBody | 
   if (action === 'setValue' || action === 'setBrightness') {
     if (b.value === undefined) return null;
     if (typeof b.value !== 'number') return null;
+    if (!Number.isInteger(b.value)) return null;
     if (b.value < 0 || b.value > 99) return null;
     return { value: b.value };
   }
