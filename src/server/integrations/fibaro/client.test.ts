@@ -105,6 +105,29 @@ describe('cachedGet', () => {
     expect(mockGet).toHaveBeenCalledTimes(2);
   });
 
+  it('fetches fresh data after 60s TTL expiry for /api/weather', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    invalidateCache('/api/weather');
+
+    mockGet.mockResolvedValueOnce({ data: { Temperature: 20 } });
+    await cachedGet('/api/weather');
+
+    // Within TTL (59s) — should still be cached
+    vi.setSystemTime(new Date('2026-01-01T00:00:59Z'));
+    mockGet.mockResolvedValueOnce({ data: { Temperature: 25 } });
+    const cached = await cachedGet('/api/weather');
+    expect(cached).toEqual({ Temperature: 20 });
+    expect(mockGet).toHaveBeenCalledTimes(1);
+
+    // Past TTL (61s) — should fetch fresh
+    vi.setSystemTime(new Date('2026-01-01T00:01:01Z'));
+    mockGet.mockResolvedValueOnce({ data: { Temperature: 25 } });
+    const fresh = await cachedGet('/api/weather');
+    expect(fresh).toEqual({ Temperature: 25 });
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+
   it('fetches fresh data after 30s default TTL expiry for unknown path', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
