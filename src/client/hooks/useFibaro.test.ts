@@ -77,6 +77,7 @@ describe('useDeviceAction', () => {
   it('sets isError=true when api.deviceAction rejects', async () => {
     mockDeviceAction.mockRejectedValue(new Error('network failure'));
     const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false }, queries: { retry: false } } });
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
     const { result } = renderHook(() => useDeviceAction(), {
       wrapper: makeWrapper(queryClient),
@@ -94,6 +95,7 @@ describe('useDeviceAction', () => {
       expect(result.current.isError).toBe(true);
     });
     expect(result.current.error).toBeInstanceOf(Error);
+    expect(invalidateSpy).not.toHaveBeenCalled(); // cache must NOT be invalidated on failure
   });
 });
 
@@ -132,6 +134,7 @@ describe('useSceneExecute', () => {
   it('sets isError=true when api.executeScene rejects', async () => {
     mockExecuteScene.mockRejectedValue(new Error('fibaro down'));
     const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false }, queries: { retry: false } } });
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
     const { result } = renderHook(() => useSceneExecute(), {
       wrapper: makeWrapper(queryClient),
@@ -149,6 +152,7 @@ describe('useSceneExecute', () => {
       expect(result.current.isError).toBe(true);
     });
     expect(result.current.error).toBeInstanceOf(Error);
+    expect(invalidateSpy).not.toHaveBeenCalled(); // cache must NOT be invalidated on failure
   });
 });
 
