@@ -2,9 +2,9 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
-import { useDeviceAction, useSceneExecute, useRooms, useDevices, useScenes, useWeather, useEnergy } from './useFibaro.js';
+import { useDeviceAction, useSceneExecute, useRooms, useDevices, useScenes, useWeather, useEnergy, useDevice } from './useFibaro.js';
 
-const { mockDeviceAction, mockExecuteScene, mockGetRooms, mockGetDevices, mockGetScenes, mockGetWeather, mockGetEnergy } = vi.hoisted(() => ({
+const { mockDeviceAction, mockExecuteScene, mockGetRooms, mockGetDevices, mockGetScenes, mockGetWeather, mockGetEnergy, mockGetDevice } = vi.hoisted(() => ({
   mockDeviceAction: vi.fn(),
   mockExecuteScene: vi.fn(),
   mockGetRooms: vi.fn(),
@@ -12,6 +12,7 @@ const { mockDeviceAction, mockExecuteScene, mockGetRooms, mockGetDevices, mockGe
   mockGetScenes: vi.fn(),
   mockGetWeather: vi.fn(),
   mockGetEnergy: vi.fn(),
+  mockGetDevice: vi.fn(),
 }));
 
 vi.mock('../services/api.ts', () => ({
@@ -23,6 +24,7 @@ vi.mock('../services/api.ts', () => ({
     getScenes: mockGetScenes,
     getWeather: mockGetWeather,
     getEnergy: mockGetEnergy,
+    getDevice: mockGetDevice,
   },
 }));
 
@@ -40,6 +42,7 @@ beforeEach(() => {
   mockGetScenes.mockReset();
   mockGetWeather.mockReset();
   mockGetEnergy.mockReset();
+  mockGetDevice.mockReset();
 });
 
 describe('useDeviceAction', () => {
@@ -273,6 +276,40 @@ describe('useEnergy', () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
     const { result } = renderHook(() => useEnergy(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
+  });
+});
+
+describe('useDevice', () => {
+  it('uses queryKey ["device", id] and calls api.getDevice with correct id', async () => {
+    mockGetDevice.mockResolvedValue({ id: 5, name: 'Light' });
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    renderHook(() => useDevice(5), { wrapper: makeWrapper(queryClient) });
+
+    const opts = queryClient.getQueryCache().find({ queryKey: ['device', 5] })?.options as Record<string, unknown> | undefined;
+    expect(opts?.queryKey).toEqual(['device', 5]);
+    await waitFor(() => expect(mockGetDevice).toHaveBeenCalledWith(5));
+  });
+
+  it('returns data when api.getDevice resolves', async () => {
+    const device = { id: 5, name: 'Light' };
+    mockGetDevice.mockResolvedValue(device);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const { result } = renderHook(() => useDevice(5), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual(device);
+  });
+
+  it('sets isError=true when api.getDevice rejects', async () => {
+    mockGetDevice.mockRejectedValue(new Error('not found'));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const { result } = renderHook(() => useDevice(99), { wrapper: makeWrapper(queryClient) });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.data).toBeUndefined();
