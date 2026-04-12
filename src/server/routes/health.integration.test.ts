@@ -24,7 +24,7 @@ app.get('/api/health', async (_req: Request, res: Response) => {
     await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
     res.json({ status: 'ok', fibaro: 'reachable', timestamp: new Date().toISOString() });
   } catch {
-    res.status(503).json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
+    res.json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
   }
 });
 
@@ -43,10 +43,10 @@ describe('GET /api/health', () => {
     expect(mockGet).toHaveBeenCalledWith('/api/loginStatus', { timeout: 3000 });
   });
 
-  it('returns 503 with status degraded when Fibaro is unreachable', async () => {
+  it('returns 200 with status degraded when Fibaro is unreachable', async () => {
     mockGet.mockRejectedValueOnce(new Error('connect ECONNREFUSED'));
     const res = await request(app).get('/api/health');
-    expect(res.status).toBe(503);
+    expect(res.status).toBe(200);
     expect(res.body.status).toBe('degraded');
     expect(res.body.fibaro).toBe('unreachable');
     expect(res.body.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
@@ -58,6 +58,6 @@ describe('GET /api/health', () => {
     mockGet.mockResolvedValueOnce({ data: {} });
     const res = await request(app).get('/api/health');
     expect(res.status).not.toBe(401);
-    expect([200, 503]).toContain(res.status);
+    expect(res.status).toBe(200);
   });
 });
