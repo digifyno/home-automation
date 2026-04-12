@@ -218,6 +218,21 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(mockPost).toHaveBeenCalledOnce();
     expect(mockPost).toHaveBeenCalledWith('/api/devices/10/action/setColor', { value: '255,128,0,0' });
   });
+
+  it('does NOT invalidate device cache when Fibaro post fails', async () => {
+    // Populate cache first
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Cached' }] });
+    await request(app).get('/api/fibaro/devices').set(AUTH);
+
+    // POST action fails
+    mockPost.mockRejectedValueOnce(new Error('fibaro down'));
+    await request(app).post('/api/fibaro/devices/1/action/turnOn').set(AUTH);
+
+    // Next GET should return cached data (no new mockGet call)
+    const res = await request(app).get('/api/fibaro/devices').set(AUTH);
+    expect(res.body).toEqual([{ id: 1, name: 'Cached' }]);
+    expect(mockGet).toHaveBeenCalledTimes(1); // only the initial population call
+  });
 });
 
 describe('GET /api/fibaro/scenes', () => {
@@ -295,6 +310,21 @@ describe('POST /api/fibaro/scenes/:id/execute', () => {
     const res = await request(app).get('/api/fibaro/scenes').set(AUTH);
     expect(res.body[0].isRunning).toBe(true);
     expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('does NOT invalidate scene cache when Fibaro post fails', async () => {
+    // Populate cache first
+    mockGet.mockResolvedValueOnce({ data: [{ id: 5, name: 'Morning', isRunning: false }] });
+    await request(app).get('/api/fibaro/scenes').set(AUTH);
+
+    // POST execute fails
+    mockPost.mockRejectedValueOnce(new Error('fibaro down'));
+    await request(app).post('/api/fibaro/scenes/5/execute').set(AUTH);
+
+    // Next GET should return cached data (no new mockGet call)
+    const res = await request(app).get('/api/fibaro/scenes').set(AUTH);
+    expect(res.body).toEqual([{ id: 5, name: 'Morning', isRunning: false }]);
+    expect(mockGet).toHaveBeenCalledTimes(1);
   });
 });
 
