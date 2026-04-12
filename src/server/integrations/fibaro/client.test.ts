@@ -59,6 +59,98 @@ describe('cachedGet', () => {
     expect(mockGet).toHaveBeenCalledTimes(2);
   });
 
+  it('fetches fresh data after 30s TTL expiry for /api/devices', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    invalidateCache('/api/devices');
+
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1 }] });
+    await cachedGet('/api/devices');
+
+    // Within TTL (29s) — should still be cached
+    vi.setSystemTime(new Date('2026-01-01T00:00:29Z'));
+    mockGet.mockResolvedValueOnce({ data: [{ id: 2 }] });
+    const cached = await cachedGet('/api/devices');
+    expect(cached).toEqual([{ id: 1 }]);
+    expect(mockGet).toHaveBeenCalledTimes(1);
+
+    // Past TTL (31s) — should fetch fresh
+    vi.setSystemTime(new Date('2026-01-01T00:00:31Z'));
+    mockGet.mockResolvedValueOnce({ data: [{ id: 2 }] });
+    const fresh = await cachedGet('/api/devices');
+    expect(fresh).toEqual([{ id: 2 }]);
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('fetches fresh data after 60s TTL expiry for /api/scenes', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    invalidateCache('/api/scenes');
+
+    mockGet.mockResolvedValueOnce({ data: [{ id: 10 }] });
+    await cachedGet('/api/scenes');
+
+    // Within TTL (59s) — should still be cached
+    vi.setSystemTime(new Date('2026-01-01T00:00:59Z'));
+    mockGet.mockResolvedValueOnce({ data: [{ id: 20 }] });
+    const cached = await cachedGet('/api/scenes');
+    expect(cached).toEqual([{ id: 10 }]);
+    expect(mockGet).toHaveBeenCalledTimes(1);
+
+    // Past TTL (61s) — should fetch fresh
+    vi.setSystemTime(new Date('2026-01-01T00:01:01Z'));
+    mockGet.mockResolvedValueOnce({ data: [{ id: 20 }] });
+    const fresh = await cachedGet('/api/scenes');
+    expect(fresh).toEqual([{ id: 20 }]);
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('fetches fresh data after 30s default TTL expiry for unknown path', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    invalidateCache('/api/unknownPath');
+
+    mockGet.mockResolvedValueOnce({ data: { value: 'original' } });
+    await cachedGet('/api/unknownPath');
+
+    // Within TTL (29s) — should still be cached
+    vi.setSystemTime(new Date('2026-01-01T00:00:29Z'));
+    mockGet.mockResolvedValueOnce({ data: { value: 'updated' } });
+    const cached = await cachedGet('/api/unknownPath');
+    expect(cached).toEqual({ value: 'original' });
+    expect(mockGet).toHaveBeenCalledTimes(1);
+
+    // Past TTL (31s) — should fetch fresh
+    vi.setSystemTime(new Date('2026-01-01T00:00:31Z'));
+    mockGet.mockResolvedValueOnce({ data: { value: 'updated' } });
+    const fresh = await cachedGet('/api/unknownPath');
+    expect(fresh).toEqual({ value: 'updated' });
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('fetches fresh data after 30s TTL expiry for /api/energyDevices', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    invalidateCache('/api/energyDevices');
+
+    mockGet.mockResolvedValueOnce({ data: [{ id: 100 }] });
+    await cachedGet('/api/energyDevices');
+
+    // Within TTL (29s) — should still be cached
+    vi.setSystemTime(new Date('2026-01-01T00:00:29Z'));
+    mockGet.mockResolvedValueOnce({ data: [{ id: 200 }] });
+    const cached = await cachedGet('/api/energyDevices');
+    expect(cached).toEqual([{ id: 100 }]);
+    expect(mockGet).toHaveBeenCalledTimes(1);
+
+    // Past TTL (31s) — should fetch fresh
+    vi.setSystemTime(new Date('2026-01-01T00:00:31Z'));
+    mockGet.mockResolvedValueOnce({ data: [{ id: 200 }] });
+    const fresh = await cachedGet('/api/energyDevices');
+    expect(fresh).toEqual([{ id: 200 }]);
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+
   it('invalidateCache causes next call to fetch fresh data', async () => {
     mockGet.mockResolvedValueOnce({ data: [{ id: 1 }] });
     await cachedGet('/api/devices');
