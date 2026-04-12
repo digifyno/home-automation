@@ -87,6 +87,28 @@ describe('rate limiter', () => {
     expect(res.status).toBe(429);
     expect(res.body).toEqual({ error: 'Too many requests' });
   });
+
+  it('unauthenticated requests do not count against the rate limit budget', async () => {
+    // Use a fresh app with its own rate limiter instance so prior tests don't affect the budget
+    const freshApp = express();
+    freshApp.use(express.json());
+    freshApp.use('/api/fibaro', requireAuth);
+    freshApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
+    freshApp.use('/api/fibaro', fibaroRouter);
+
+    // Send 2 unauthenticated requests (401, should not consume budget)
+    await request(freshApp).get('/api/fibaro/devices'); // 401, no budget consumed
+    await request(freshApp).get('/api/fibaro/devices'); // 401, no budget consumed
+    // The next 2 authenticated requests should succeed (budget still full)
+    mockGet.mockResolvedValue({ data: [] });
+    const res1 = await request(freshApp).get('/api/fibaro/devices').set(AUTH);
+    const res2 = await request(freshApp).get('/api/fibaro/devices').set(AUTH);
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    // The 3rd authenticated request exceeds the 2-request limit
+    const res3 = await request(freshApp).get('/api/fibaro/devices').set(AUTH);
+    expect(res3.status).toBe(429);
+  });
 });
 
 describe('GET /api/fibaro/devices', () => {
