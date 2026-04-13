@@ -184,6 +184,14 @@ describe('useRooms', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.data).toBeUndefined();
   });
+
+  it('does not set a refetchInterval (rooms are static data)', async () => {
+    mockGetRooms.mockResolvedValue([]);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    renderHook(() => useRooms(), { wrapper: makeWrapper(queryClient) });
+    const opts = getQueryOptions(queryClient, ['rooms']);
+    expect(opts?.refetchInterval).toBeUndefined();
+  });
 });
 
 describe('useDevices', () => {

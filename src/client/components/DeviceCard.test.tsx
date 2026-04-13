@@ -155,4 +155,14 @@ describe('DeviceCard', () => {
     render(<DeviceCard device={makeDevice({ type: 'com.fibaro.shutterWithMotor' })} />);
     expect(screen.queryByRole('button')).toBeNull();
   });
+
+  it('does not render toggle button for safety device type', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.smokeDetector' })} />);
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('does not render toggle button for energy device type', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.electricMeter' })} />);
+    expect(screen.queryByRole('button')).toBeNull();
+  });
 });
