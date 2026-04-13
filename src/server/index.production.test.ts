@@ -17,7 +17,7 @@ vi.mock('axios', () => ({
 
 // Import after mocks are registered
 import fibaroRouter from './routes/fibaro.js';
-import { invalidateCache } from './integrations/fibaro/client.js';
+import { fibaroClient, invalidateCache } from './integrations/fibaro/client.js';
 
 // Replicate the auth middleware from index.ts (API_TOKEN set to 'test-token' in test-setup.ts)
 const API_TOKEN = process.env.API_TOKEN!;
@@ -38,6 +38,16 @@ app.use(express.json());
 // API routes (lines 47–49)
 app.use('/api/fibaro', requireAuth);
 app.use('/api/fibaro', fibaroRouter);
+
+// /api/health — registered before the catch-all (line 51 in index.ts)
+app.get('/api/health', async (_req, res) => {
+  try {
+    await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
+    res.json({ status: 'ok', fibaro: 'reachable', timestamp: new Date().toISOString() });
+  } catch {
+    res.json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
+  }
+});
 
 // /api/* 404 catch-all — production only (lines 62–65)
 app.use('/api', (_req, res) => {
@@ -63,5 +73,19 @@ describe('production-mode /api/* 404 catch-all', () => {
     mockGet.mockResolvedValueOnce({ data: [] });
     const res = await request(app).get('/api/fibaro/devices').set(AUTH);
     expect(res.status).toBe(200);
+  });
+});
+
+describe('production-mode /api/health before catch-all', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+    mockPost.mockReset();
+  });
+
+  it('returns 200 from /api/health before the /api catch-all fires', async () => {
+    mockGet.mockResolvedValueOnce({ data: {} });
+    const res = await request(app).get('/api/health');
+    expect(res.status).toBe(200);
+    expect(res.body.status).toMatch(/ok|degraded/);
   });
 });
