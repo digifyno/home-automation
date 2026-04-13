@@ -11,6 +11,7 @@ vi.mock('./hooks/useFibaro.ts', () => ({
   useScenes: () => ({ data: [], isLoading: false, isError: false }),
   useWeather: () => ({ data: [], isLoading: false, isError: false }),
   useEnergy: () => ({ data: [], isLoading: false, isError: false }),
+  useDevice: (id: number) => ({ data: undefined, isLoading: false, isError: false }),
   useDeviceAction: () => ({ mutate: vi.fn(), isPending: false }),
   useSceneExecute: () => ({ mutate: vi.fn(), isPending: false }),
 }));

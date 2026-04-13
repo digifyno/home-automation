@@ -314,4 +314,12 @@ describe('useDevice', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.data).toBeUndefined();
   });
+
+  it('does not set a refetchInterval (no auto-polling for individual device)', async () => {
+    mockGetDevice.mockResolvedValue({ id: 5 });
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    renderHook(() => useDevice(5), { wrapper: makeWrapper(queryClient) });
+    const opts = queryClient.getQueryCache().find({ queryKey: ['device', 5] })?.options as Record<string, unknown> | undefined;
+    expect(opts?.refetchInterval).toBeUndefined();
+  });
 });
