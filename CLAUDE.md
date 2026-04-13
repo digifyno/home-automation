@@ -103,7 +103,7 @@ ALLOWED_ORIGIN=
 - Error handling: wrap all API calls with proper error boundaries; for `fetch` calls, always check `r.ok` before calling `r.json()` — a non-2xx response (e.g. nginx error page) is not valid JSON and will throw a misleading parse error otherwise
 - Use environment variables for all secrets - never hardcode credentials
 - Write tests for integration connectors, middleware behaviour (e.g. rate limiting, auth), and critical UI logic
-- Tests use **vitest**; client hooks (`src/client/hooks/**`) run in the `jsdom` environment (configured via `environmentMatchGlobs` in `vitest.config.ts`)
+- Tests use **vitest**; all client `.tsx` tests (`src/client/**/*.test.tsx`) and hook `.ts` tests (`src/client/hooks/**/*.test.ts`) run in the `jsdom` environment (configured via `environmentMatchGlobs` in `vitest.config.ts`)
 - Route integration tests live in `src/server/routes/*.integration.test.ts` and use `supertest` against a minimal Express app; middleware (auth, rate limiter) is wired up inline so the tests reflect real request flow
 
 ## Allowed Domains
