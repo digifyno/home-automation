@@ -33,6 +33,11 @@ describe('parseDeviceId', () => {
   it('returns null for scientific notation', () => {
     expect(parseDeviceId('1e2')).toBeNull();
   });
+
+  it('returns null for input with leading zeros (e.g. "01", "007")', () => {
+    expect(parseDeviceId('01')).toBeNull();
+    expect(parseDeviceId('007')).toBeNull();
+  });
 });
 
 describe('validateActionBody', () => {
