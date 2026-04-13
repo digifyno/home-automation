@@ -140,4 +140,19 @@ describe('DeviceCard', () => {
     const label = btn.getAttribute('aria-label') ?? '';
     expect(label.includes('Turn on') || label.includes('Turn off')).toBe(true);
   });
+
+  it('shows On text when device is on (non-dead, non-numeric)', () => {
+    render(<DeviceCard device={makeDevice({ properties: { value: true, dead: false } })} />);
+    expect(screen.getByText('On')).toBeTruthy();
+  });
+
+  it('shows Off text when device is off (non-dead, non-numeric)', () => {
+    render(<DeviceCard device={makeDevice({ properties: { value: false, dead: false } })} />);
+    expect(screen.getByText('Off')).toBeTruthy();
+  });
+
+  it('does not render toggle button for shutter device type', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.shutterWithMotor' })} />);
+    expect(screen.queryByRole('button')).toBeNull();
+  });
 });
