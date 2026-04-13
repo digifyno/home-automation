@@ -113,4 +113,49 @@ describe('App navigation', () => {
     expect(screen.queryByText('Offline')).toBeNull();
     expect(screen.queryByText('Live')).toBeNull();
   });
+
+  it('shows Offline when health data has unknown status', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'unknown' as 'ok', fibaro: 'reachable' }, isError: false, isLoading: false } as unknown as ReturnType<typeof useHealth>);
+    renderApp();
+    expect(screen.getByText('Offline')).toBeTruthy();
+    expect(screen.queryByText('Live')).toBeNull();
+    expect(screen.queryByText('Degraded')).toBeNull();
+  });
+
+  it('dot has bg-green-400 animate-pulse class when status is ok', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'ok', fibaro: 'reachable' }, isError: false, isLoading: false } as unknown as ReturnType<typeof useHealth>);
+    const { container } = renderApp();
+    const dot = container.querySelector('.w-2.h-2.rounded-full');
+    expect(dot?.className).toContain('bg-green-400');
+    expect(dot?.className).toContain('animate-pulse');
+  });
+
+  it('dot has bg-yellow-400 class when status is degraded', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'degraded', fibaro: 'unreachable' }, isError: false, isLoading: false } as unknown as ReturnType<typeof useHealth>);
+    const { container } = renderApp();
+    const dot = container.querySelector('.w-2.h-2.rounded-full');
+    expect(dot?.className).toContain('bg-yellow-400');
+  });
+
+  it('dot has bg-gray-400 animate-pulse class when loading', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: undefined, isError: false, isLoading: true } as unknown as ReturnType<typeof useHealth>);
+    const { container } = renderApp();
+    const dot = container.querySelector('.w-2.h-2.rounded-full');
+    expect(dot?.className).toContain('bg-gray-400');
+    expect(dot?.className).toContain('animate-pulse');
+  });
+
+  it('dot has bg-red-400 class when health check errors', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: undefined, isError: true, isLoading: false } as unknown as ReturnType<typeof useHealth>);
+    const { container } = renderApp();
+    const dot = container.querySelector('.w-2.h-2.rounded-full');
+    expect(dot?.className).toContain('bg-red-400');
+  });
+
+  it('dot has bg-red-400 class when data has unknown status', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'unknown' as 'ok', fibaro: 'reachable' }, isError: false, isLoading: false } as unknown as ReturnType<typeof useHealth>);
+    const { container } = renderApp();
+    const dot = container.querySelector('.w-2.h-2.rounded-full');
+    expect(dot?.className).toContain('bg-red-400');
+  });
 });
