@@ -198,6 +198,22 @@ describe('Energy page', () => {
     expect(screen.queryByText('Offline')).toBeNull();
   });
 
+  it('does not show kWh block when energy meter has no energy property and no matching energyData', () => {
+    mockEnergyData = []; // no matching entry
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Bare Meter',
+        type: 'com.fibaro.electricMeter',
+        properties: { value: false, dead: false }, // no energy property
+      }),
+    ];
+    render(<Energy />);
+    expect(screen.getByText('Energy Meters')).toBeTruthy();
+    expect(screen.getByText('Bare Meter')).toBeTruthy();
+    expect(screen.queryByText('kWh')).toBeNull(); // kWh block hidden when totalEnergy is undefined
+  });
+
   it('shows Watts from device.properties.power for an energy meter that also reports power', () => {
     mockDevices = [
       makeDevice({
