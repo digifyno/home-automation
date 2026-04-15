@@ -141,6 +141,26 @@ describe('Scenes page', () => {
     expect(screen.getAllByText('Scene failed to run')).toHaveLength(1);
   });
 
+  it('clicking Run Scene again after an error clears the error display', () => {
+    mockScenes = [makeScene({ id: 1, name: 'My Scene' })];
+    // First click: fails and settles
+    mockMutate
+      .mockImplementationOnce((_id: number, opts: { onSettled?: () => void; onError?: () => void }) => {
+        opts.onError?.();
+        opts.onSettled?.();
+      })
+      // Second click: succeeds and settles
+      .mockImplementationOnce((_id: number, opts: { onSettled?: () => void }) => {
+        opts.onSettled?.();
+      });
+    render(<Scenes />);
+    const btn = screen.getByText('Run Scene').closest('button') as HTMLButtonElement;
+    fireEvent.click(btn); // first click — fails
+    expect(screen.getByText('Scene failed to run')).toBeTruthy();
+    fireEvent.click(btn); // second click — error should clear immediately
+    expect(screen.queryByText('Scene failed to run')).toBeNull();
+  });
+
   it('only disables the clicked scene button, not others', () => {
     mockScenes = [
       makeScene({ id: 1, name: 'Scene One' }),
