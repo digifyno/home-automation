@@ -199,6 +199,15 @@ describe('Dashboard page', () => {
     expect(screen.getByText('22°C')).toBeTruthy();
   });
 
+  it('shows -- in room card when thermostat value is not a number', () => {
+    mockRooms = [makeRoom({ id: 1, name: 'Bedroom' })];
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.hvacSystem', roomID: 1, properties: { value: false, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('--')).toBeTruthy();
+  });
+
   it('shows Avg Indoor stat card with thermostat temperature', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.hvacSystem', properties: { value: 21, dead: false } }),
