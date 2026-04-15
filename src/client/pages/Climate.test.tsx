@@ -156,4 +156,43 @@ describe('Climate page', () => {
     render(<Climate />);
     expect(screen.getByText('Offline')).toBeTruthy();
   });
+
+  it('shows -- when thermostat value is not a number', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Living Thermostat',
+        type: 'com.fibaro.hvacSystem',
+        properties: { value: false, dead: false }, // boolean — not a number
+      }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('--°C')).toBeTruthy();
+  });
+
+  it('shows -- when temperature sensor value is not a number', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Bedroom Temp',
+        type: 'com.fibaro.temperatureSensor',
+        properties: { value: false, dead: false },
+      }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('--°C')).toBeTruthy();
+  });
+
+  it('shows -- when humidity sensor value is not a number', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Bathroom Humidity',
+        type: 'com.fibaro.humiditySensor',
+        properties: { value: false, dead: false },
+      }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('--%')).toBeTruthy();
+  });
 });
