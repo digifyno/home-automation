@@ -231,4 +231,21 @@ describe('Lights page', () => {
     render(<Lights />);
     expect(screen.getByText('0 of 2 on')).toBeTruthy();
   });
+
+  it('subtitle still shows global lights-on count when a room filter is active', () => {
+    mockDevices = [
+      makeLight({ id: 1, roomID: 1, properties: { value: true, dead: false } }),  // Kitchen — on
+      makeLight({ id: 2, roomID: 2, properties: { value: true, dead: false } }),  // Bedroom — on
+      makeLight({ id: 3, roomID: 2, properties: { value: false, dead: false } }), // Bedroom — off
+    ];
+    mockRooms = [
+      makeRoom({ id: 1, name: 'Kitchen' }),
+      makeRoom({ id: 2, name: 'Bedroom' }),
+    ];
+    render(<Lights />);
+    // Select Kitchen — only 1 of 1 on in Kitchen, but global is 2 of 3 on
+    fireEvent.click(screen.getByText('Kitchen'));
+    // Subtitle always reflects the global count, not the filtered count
+    expect(screen.getByText('2 of 3 on')).toBeTruthy();
+  });
 });
