@@ -204,4 +204,38 @@ describe('Climate page', () => {
     render(<Climate />);
     expect(screen.getByText('Unknown room')).toBeTruthy();
   });
+
+  it('renders temperature sensor card without crashing when roomID has no matching room', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Orphan Temp Sensor',
+        type: 'com.fibaro.temperatureSensor',
+        roomID: 999,
+        properties: { value: 21, dead: false },
+      }),
+    ];
+    mockRooms = []; // no matching room
+    render(<Climate />);
+    expect(screen.getByText('Orphan Temp Sensor')).toBeTruthy();
+    // room name cell is blank — no crash
+    expect(screen.getByText('Temperature Sensors')).toBeTruthy();
+  });
+
+  it('renders humidity sensor card without crashing when roomID has no matching room', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Orphan Humidity Sensor',
+        type: 'com.fibaro.humiditySensor',
+        roomID: 999,
+        properties: { value: 60, dead: false },
+      }),
+    ];
+    mockRooms = []; // no matching room
+    render(<Climate />);
+    expect(screen.getByText('Orphan Humidity Sensor')).toBeTruthy();
+    // room name cell is blank — no crash
+    expect(screen.getByText('Humidity Sensors')).toBeTruthy();
+  });
 });
