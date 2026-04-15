@@ -75,6 +75,10 @@ describe('categorizeDevice', () => {
   it('classifies type containing cover as shutter', () => {
     expect(categorizeDevice('com.fibaro.cover')).toBe('shutter');
   });
+
+  it('classifies powerSwitch as light (contains Switch substring)', () => {
+    expect(categorizeDevice('com.fibaro.powerSwitch')).toBe('light');
+  });
 });
 
 describe('isDeviceOn', () => {

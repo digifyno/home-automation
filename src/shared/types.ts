@@ -66,7 +66,7 @@ export type DeviceCategory = 'light' | 'dimmer' | 'thermostat' | 'sensor' | 'saf
 
 export function categorizeDevice(type: string): DeviceCategory {
   if (type.includes('dimmer') || type.includes('colorController')) return 'dimmer';
-  if (type.includes('Switch') || type.includes('powerSwitch')) return 'light';
+  if (type.includes('Switch')) return 'light';
   if (type.includes('hvacSystem')) return 'thermostat';
   if (type.includes('smokeDetector') || type.includes('coDetector') || type.includes('floodSensor')) return 'safety';
   if (type.includes('electricMeter')) return 'energy';
