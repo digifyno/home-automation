@@ -71,6 +71,10 @@ describe('categorizeDevice', () => {
   it('classifies motionDetector as sensor (Detector suffix catch-all)', () => {
     expect(categorizeDevice('com.fibaro.motionDetector')).toBe('sensor');
   });
+
+  it('classifies type containing cover as shutter', () => {
+    expect(categorizeDevice('com.fibaro.cover')).toBe('shutter');
+  });
 });
 
 describe('isDeviceOn', () => {
@@ -100,5 +104,9 @@ describe('isDeviceOn', () => {
 
   it('returns false when value is string \'false\'', () => {
     expect(isDeviceOn(makeDevice('false'))).toBe(false);
+  });
+
+  it('returns false when value is a negative number', () => {
+    expect(isDeviceOn(makeDevice(-1))).toBe(false);
   });
 });
