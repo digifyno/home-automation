@@ -212,4 +212,23 @@ describe('Lights page', () => {
     fireEvent.click(btn);
     expect(btn.disabled).toBe(true);
   });
+
+  it('shows lights-on count in subtitle (N of M on)', () => {
+    mockDevices = [
+      makeLight({ id: 1, properties: { value: true, dead: false } }),
+      makeLight({ id: 2, properties: { value: false, dead: false } }),
+      makeLight({ id: 3, properties: { value: true, dead: false } }),
+    ];
+    render(<Lights />);
+    expect(screen.getByText('2 of 3 on')).toBeTruthy();
+  });
+
+  it('shows 0 of N on when no lights are on', () => {
+    mockDevices = [
+      makeLight({ id: 1, properties: { value: false, dead: false } }),
+      makeLight({ id: 2, properties: { value: false, dead: false } }),
+    ];
+    render(<Lights />);
+    expect(screen.getByText('0 of 2 on')).toBeTruthy();
+  });
 });

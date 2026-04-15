@@ -174,6 +174,17 @@ describe('Energy page', () => {
     expect(screen.getByText('Dead Meter')).toBeTruthy();
   });
 
+  it('renders consumer row without crashing when device room is not found', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Orphan Device', roomID: 999, properties: { value: true, dead: false, power: 500 } }),
+    ];
+    mockRooms = []; // no matching room
+    render(<Energy />);
+    expect(screen.getByText('Orphan Device')).toBeTruthy();
+    // room name cell is blank — no crash
+    expect(screen.getByText('Active Consumers')).toBeTruthy();
+  });
+
   it('does not show Offline label for a live energy meter', () => {
     mockDevices = [
       makeDevice({
