@@ -195,4 +195,13 @@ describe('Climate page', () => {
     render(<Climate />);
     expect(screen.getByText('--%')).toBeTruthy();
   });
+
+  it('shows Unknown room when thermostat roomID does not match any room', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Living Thermostat', type: 'com.fibaro.hvacSystem', roomID: 99, properties: { value: 21, dead: false } }),
+    ];
+    mockRooms = []; // no matching room
+    render(<Climate />);
+    expect(screen.getByText('Unknown room')).toBeTruthy();
+  });
 });
