@@ -241,6 +241,25 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(mockPost).toHaveBeenCalledWith('/api/devices/10/action/setColor', { value: '255,128,0,0' });
   });
 
+  it('returns 400 for setValue when body is missing (no Content-Type header)', async () => {
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setValue')
+      .set(AUTH)
+      // intentionally no .send() — no body, no Content-Type
+      ;
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid action body' });
+  });
+
+  it('returns 400 for setColor when body is missing (no Content-Type header)', async () => {
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setColor')
+      .set(AUTH)
+      ;
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid action body' });
+  });
+
   it('does NOT invalidate device cache when Fibaro post fails', async () => {
     // Populate cache first
     mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Cached' }] });
