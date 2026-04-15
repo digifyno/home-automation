@@ -208,6 +208,15 @@ describe('Dashboard page', () => {
     expect(screen.getByText('--')).toBeTruthy();
   });
 
+  it('shows 0.0°C in Avg Indoor stat when thermostat value is not a number', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.hvacSystem', properties: { value: false, dead: false } }),
+    ];
+    render(<Dashboard />);
+    // Non-numeric thermostat value contributes 0 to the average → displays 0.0°C
+    expect(screen.getByText('0.0°C')).toBeTruthy();
+  });
+
   it('shows Avg Indoor stat card with thermostat temperature', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.hvacSystem', properties: { value: 21, dead: false } }),
