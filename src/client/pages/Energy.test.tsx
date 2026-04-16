@@ -237,4 +237,21 @@ describe('Energy page', () => {
     expect(screen.getByText('230.5')).toBeTruthy();
     expect(screen.getByText('Watts')).toBeTruthy();
   });
+
+  it('electricMeter with power > 0 appears in both Active Consumers and Energy Meters sections', () => {
+    mockDevices = [
+      makeDevice({
+        id: 1,
+        name: 'Smart Meter',
+        type: 'com.fibaro.electricMeter',
+        properties: { value: false, dead: false, power: 300, energy: 10.0 },
+      }),
+    ];
+    render(<Energy />);
+    expect(screen.getByText('Active Consumers')).toBeTruthy();
+    expect(screen.getByText('Energy Meters')).toBeTruthy();
+    // Device name appears in both sections
+    const allNames = screen.getAllByText('Smart Meter');
+    expect(allNames.length).toBeGreaterThanOrEqual(2);
+  });
 });
