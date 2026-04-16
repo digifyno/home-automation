@@ -53,7 +53,7 @@ app.get('/api/health', async (_req, res) => {
     await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
     res.json({ status: 'ok', fibaro: 'reachable', timestamp: new Date().toISOString() });
   } catch {
-    res.json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
+    res.status(503).json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
   }
 });
 
