@@ -235,6 +235,13 @@ describe('Dashboard page', () => {
     expect(screen.getByText('2 thermostats')).toBeTruthy();
   });
 
+  it('shows --°C and 0 thermostats in Avg Indoor stat when no thermostat devices exist', () => {
+    mockDevices = []; // no thermostat devices
+    render(<Dashboard />);
+    expect(screen.getByText('--°C')).toBeTruthy();
+    expect(screen.getByText('0 thermostats')).toBeTruthy();
+  });
+
   it('shows Power Usage stat card with summed device watts', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.binarySwitch', properties: { value: true, dead: false, power: 1500 } }),
