@@ -72,6 +72,14 @@ describe('categorizeDevice', () => {
     expect(categorizeDevice('com.fibaro.motionDetector')).toBe('sensor');
   });
 
+  it('classifies temperatureSensor as sensor', () => {
+    expect(categorizeDevice('com.fibaro.temperatureSensor')).toBe('sensor');
+  });
+
+  it('classifies humiditySensor as sensor', () => {
+    expect(categorizeDevice('com.fibaro.humiditySensor')).toBe('sensor');
+  });
+
   it('classifies type containing cover as shutter', () => {
     expect(categorizeDevice('com.fibaro.cover')).toBe('shutter');
   });
