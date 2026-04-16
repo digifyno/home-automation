@@ -270,6 +270,14 @@ describe('Lights page', () => {
     );
   });
 
+  it('includes dimmer devices in the lights list', () => {
+    mockDevices = [
+      makeLight({ id: 1, name: 'Dimmer Light', type: 'com.fibaro.dimmer2' }),
+    ];
+    render(<Lights />);
+    expect(screen.getByText('Dimmer Light')).toBeTruthy();
+  });
+
   it('subtitle still shows global lights-on count when a room filter is active', () => {
     mockDevices = [
       makeLight({ id: 1, roomID: 1, properties: { value: true, dead: false } }),  // Kitchen — on
