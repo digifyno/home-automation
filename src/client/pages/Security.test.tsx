@@ -208,6 +208,16 @@ describe('Security page', () => {
     expect(screen.getByText('2 alerts active')).toBeTruthy();
   });
 
+  it('shows both alert count and tampered count when sensors are both triggered and tampered', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: true, dead: false } }),  // triggered
+      makeDevice({ id: 2, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, tampered: true } }),  // tampered only
+    ];
+    render(<Security />);
+    expect(screen.getByText('1 alert active')).toBeTruthy();
+    expect(screen.getByText('1 sensor tampered')).toBeTruthy();
+  });
+
   it('shows plural sensors tampered when 2 devices are tampered', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, tampered: true } }),
