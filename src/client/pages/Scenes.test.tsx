@@ -161,6 +161,12 @@ describe('Scenes page', () => {
     expect(screen.queryByText('Scene failed to run')).toBeNull();
   });
 
+  it('shows scene type label when isRunning is false', () => {
+    mockScenes = [makeScene({ id: 1, name: 'My Scene', type: 'lua', isRunning: false })];
+    render(<Scenes />);
+    expect(screen.getByText('lua')).toBeTruthy();
+  });
+
   it('only disables the clicked scene button, not others', () => {
     mockScenes = [
       makeScene({ id: 1, name: 'Scene One' }),
