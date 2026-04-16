@@ -259,6 +259,14 @@ describe('Dashboard page', () => {
     expect(screen.getByText('500W')).toBeTruthy();
   });
 
+  it('shows 0W Power Usage when no devices have a power property', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.binarySwitch', properties: { value: false, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('0W')).toBeTruthy();
+  });
+
   it('shows Safety stat card as OK when no alerts', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false } }),
