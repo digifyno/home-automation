@@ -232,6 +232,24 @@ describe('Lights page', () => {
     expect(screen.getByText('0 of 2 on')).toBeTruthy();
   });
 
+  it('clicking All Off again after an error immediately clears the error message', () => {
+    mockDevices = [makeLight({ id: 1, properties: { value: true, dead: false } })];
+    // First click: triggers onError so the error banner appears
+    mockMutate.mockImplementationOnce((_args: unknown, opts: { onError?: () => void; onSettled?: () => void }) => {
+      opts.onError?.();
+      opts.onSettled?.();
+    });
+    render(<Lights />);
+    fireEvent.click(screen.getByText('All Off'));
+    expect(screen.getByText('Some lights failed to turn off')).toBeTruthy();
+
+    // Update mockDevices so the button is still enabled (light is still on)
+    // Second click: mutate never settles — simulates in-flight. But error should clear immediately.
+    mockMutate.mockImplementationOnce(() => undefined);
+    fireEvent.click(screen.getByText('All Off'));
+    expect(screen.queryByText('Some lights failed to turn off')).toBeNull();
+  });
+
   it('subtitle still shows global lights-on count when a room filter is active', () => {
     mockDevices = [
       makeLight({ id: 1, roomID: 1, properties: { value: true, dead: false } }),  // Kitchen — on
