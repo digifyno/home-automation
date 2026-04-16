@@ -165,4 +165,9 @@ describe('DeviceCard', () => {
     render(<DeviceCard device={makeDevice({ type: 'com.fibaro.electricMeter' })} />);
     expect(screen.queryByRole('button')).toBeNull();
   });
+
+  it('does not render toggle button for other device type', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.unknownWidget' })} />);
+    expect(screen.queryByRole('button')).toBeNull();
+  });
 });
