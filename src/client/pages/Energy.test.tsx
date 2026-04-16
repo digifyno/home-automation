@@ -174,6 +174,16 @@ describe('Energy page', () => {
     expect(screen.getByText('Dead Meter')).toBeTruthy();
   });
 
+  it('shows room name in consumer row when device roomID matches a room', () => {
+    mockRooms = [{ id: 1, name: 'Living Room', sectionID: 1, icon: '', defaultSensor: 0, defaultThermostat: 0, sortOrder: 0 }];
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Heater', roomID: 1, properties: { value: true, dead: false, power: 1000 } }),
+    ];
+    render(<Energy />);
+    expect(screen.getByText('Heater')).toBeTruthy();
+    expect(screen.getByText('Living Room')).toBeTruthy();
+  });
+
   it('renders consumer row without crashing when device room is not found', () => {
     mockDevices = [
       makeDevice({ id: 1, name: 'Orphan Device', roomID: 999, properties: { value: true, dead: false, power: 500 } }),
