@@ -250,6 +250,26 @@ describe('Lights page', () => {
     expect(screen.queryByText('Some lights failed to turn off')).toBeNull();
   });
 
+  it('All Off with room filter active only calls mutate for lights in the filtered room', () => {
+    mockDevices = [
+      makeLight({ id: 1, roomID: 1, properties: { value: true, dead: false } }),   // Kitchen — on
+      makeLight({ id: 2, roomID: 2, properties: { value: true, dead: false } }),   // Bedroom — on (should NOT be mutated)
+    ];
+    mockRooms = [
+      makeRoom({ id: 1, name: 'Kitchen' }),
+      makeRoom({ id: 2, name: 'Bedroom' }),
+    ];
+    render(<Lights />);
+    fireEvent.click(screen.getByText('Kitchen'));  // activate room filter
+    fireEvent.click(screen.getByText('All Off'));
+    // Only Kitchen light (id: 1) should be turned off
+    expect(mockMutate).toHaveBeenCalledTimes(1);
+    expect(mockMutate).toHaveBeenCalledWith(
+      { id: 1, action: 'turnOff' },
+      expect.any(Object),
+    );
+  });
+
   it('subtitle still shows global lights-on count when a room filter is active', () => {
     mockDevices = [
       makeLight({ id: 1, roomID: 1, properties: { value: true, dead: false } }),  // Kitchen — on
