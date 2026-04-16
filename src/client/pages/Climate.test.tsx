@@ -222,6 +222,15 @@ describe('Climate page', () => {
     expect(screen.getByText('Temperature Sensors')).toBeTruthy();
   });
 
+  it('renders temperature sensor when device type includes uppercase Temperature (capital T variant)', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Main Temp Sensor', type: 'com.fibaro.MainTemperatureSensor', properties: { value: 20, dead: false } }),
+    ];
+    render(<Climate />);
+    expect(screen.getByText('Main Temp Sensor')).toBeTruthy();
+    expect(screen.getByText('Temperature Sensors')).toBeTruthy();
+  });
+
   it('renders humidity sensor card without crashing when roomID has no matching room', () => {
     mockDevices = [
       makeDevice({
