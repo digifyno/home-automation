@@ -27,6 +27,7 @@ interface CacheEntry<T> {
 
 const cache = new Map<string, CacheEntry<unknown>>();
 const inflight = new Map<string, Promise<unknown>>();
+const generations = new Map<string, number>();
 
 const TTLs: Record<string, number> = {
   '/api/rooms': 5 * 60 * 1000,
@@ -45,9 +46,12 @@ export async function cachedGet<T>(path: string): Promise<T> {
   const existing = inflight.get(path);
   if (existing) return existing as Promise<T>;
 
+  const gen = generations.get(path) ?? 0;
   const promise = fibaroClient.get<T>(path).then(response => {
-    const ttl = TTLs[path] ?? 30 * 1000;
-    cache.set(path, { data: response.data, expiresAt: Date.now() + ttl });
+    if ((generations.get(path) ?? 0) === gen) {
+      const ttl = TTLs[path] ?? 30 * 1000;
+      cache.set(path, { data: response.data, expiresAt: Date.now() + ttl });
+    }
     inflight.delete(path);
     return response.data;
   }).catch(err => {
@@ -61,4 +65,5 @@ export async function cachedGet<T>(path: string): Promise<T> {
 
 export function invalidateCache(path: string): void {
   cache.delete(path);
+  generations.set(path, (generations.get(path) ?? 0) + 1);
 }

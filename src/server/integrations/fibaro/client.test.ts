@@ -230,6 +230,32 @@ describe('cachedGet', () => {
     expect(mockGet).toHaveBeenCalledTimes(1);
   });
 
+  it('does not repopulate cache with stale data when invalidateCache is called while inflight', async () => {
+    invalidateCache('/api/devices');
+
+    let resolveRequest!: (value: { data: unknown }) => void;
+    const pendingRequest = new Promise<{ data: unknown }>(resolve => {
+      resolveRequest = resolve;
+    });
+    mockGet.mockReturnValueOnce(pendingRequest);
+
+    // Start an inflight request
+    const inflightPromise = cachedGet('/api/devices');
+
+    // Invalidate while the request is still in flight
+    invalidateCache('/api/devices');
+
+    // Resolve the inflight with (now-stale) data
+    resolveRequest({ data: [{ id: 1, name: 'Stale' }] });
+    await inflightPromise; // let the .then() run
+
+    // Cache should NOT be populated with stale data
+    mockGet.mockResolvedValueOnce({ data: [{ id: 2, name: 'Fresh' }] });
+    const result = await cachedGet('/api/devices');
+    expect(result).toEqual([{ id: 2, name: 'Fresh' }]);
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+
   it('does not cache failed responses', async () => {
     invalidateCache('/api/devices');
     mockGet.mockRejectedValueOnce(new Error('timeout'));
