@@ -50,6 +50,10 @@ describe('validateActionBody', () => {
       expect(validateActionBody(action, { value: '50' })).toBeNull();
     });
 
+    it.each(['setValue', 'setBrightness'])('%s: returns null when value is a boolean', (action) => {
+      expect(validateActionBody(action, { value: true })).toBeNull();
+    });
+
     it.each(['setValue', 'setBrightness'])('%s: returns null when value < 0', (action) => {
       expect(validateActionBody(action, { value: -1 })).toBeNull();
     });
