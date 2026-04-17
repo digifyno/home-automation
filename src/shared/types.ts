@@ -77,5 +77,5 @@ export function categorizeDevice(type: string): DeviceCategory {
 
 export function isDeviceOn(device: FibaroDevice): boolean {
   const v = device.properties.value;
-  return v === true || (typeof v === 'number' && v > 0) || v === 'true';
+  return v === true || (typeof v === 'number' && v > 0) || v === 'true' || v === '1';
 }
