@@ -317,6 +317,22 @@ describe('POST /api/fibaro/scenes/:id/execute', () => {
     expect(res.body).toEqual({ error: 'Invalid scene id' });
   });
 
+  it('returns 400 for scene ID 0', async () => {
+    const res = await request(app)
+      .post('/api/fibaro/scenes/0/execute')
+      .set(AUTH);
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid scene id' });
+  });
+
+  it('returns 400 for a negative scene ID', async () => {
+    const res = await request(app)
+      .post('/api/fibaro/scenes/-1/execute')
+      .set(AUTH);
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid scene id' });
+  });
+
   it('returns 200 on success', async () => {
     mockPost.mockResolvedValueOnce({ data: { result: 'started' } });
     const res = await request(app)
