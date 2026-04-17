@@ -62,6 +62,9 @@ describe('Climate page', () => {
     render(<Climate />);
     expect(screen.getByText('12°C')).toBeTruthy();
     expect(screen.getByText('Outdoor')).toBeTruthy();
+    expect(screen.getByText('65%')).toBeTruthy();
+    expect(screen.getByText('10 km/h')).toBeTruthy();
+    expect(screen.getByText('Cloudy')).toBeTruthy();
   });
 
   it('does not render outdoor panel when weather is undefined', () => {
