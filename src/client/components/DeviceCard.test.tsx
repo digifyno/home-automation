@@ -170,4 +170,9 @@ describe('DeviceCard', () => {
     render(<DeviceCard device={makeDevice({ type: 'com.fibaro.unknownWidget' })} />);
     expect(screen.queryByRole('button')).toBeNull();
   });
+
+  it('shows On when device value is numeric but unit is absent', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.temperatureSensor', properties: { value: 21.5, dead: false } })} />);
+    expect(screen.getByText('On')).toBeTruthy();
+  });
 });
