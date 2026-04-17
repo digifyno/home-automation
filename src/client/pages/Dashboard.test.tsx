@@ -267,6 +267,15 @@ describe('Dashboard page', () => {
     expect(screen.getByText('0W')).toBeTruthy();
   });
 
+  it('Power Usage rounds fractional watts to the nearest integer', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.binarySwitch', properties: { value: true, dead: false, power: 1.7 } }),
+    ];
+    render(<Dashboard />);
+    // toFixed(0) rounds 1.7 → '2', displays as '2W'
+    expect(screen.getByText('2W')).toBeTruthy();
+  });
+
   it('shows Safety stat card as OK when no alerts', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false } }),
