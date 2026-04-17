@@ -252,4 +252,12 @@ describe('Security page', () => {
     render(<Security />);
     expect(screen.getByText('2 sensors monitored')).toBeTruthy();
   });
+
+  it('counts dead device with value=true in alert total (dead does not suppress alert)', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: true, dead: true } }),
+    ];
+    render(<Security />);
+    expect(screen.getByText('1 alert active')).toBeTruthy();
+  });
 });
