@@ -179,4 +179,11 @@ describe('Scenes page', () => {
     expect(buttons[0].disabled).toBe(true);
     expect(buttons[1].disabled).toBe(false);
   });
+
+  it('Run Scene button is enabled (not disabled) when scene isRunning is true', () => {
+    mockScenes = [makeScene({ id: 1, name: 'Active Scene', isRunning: true })];
+    render(<Scenes />);
+    const btn = screen.getByText('Run Scene').closest('button') as HTMLButtonElement;
+    expect(btn.disabled).toBe(false);
+  });
 });
