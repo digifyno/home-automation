@@ -39,7 +39,23 @@ describe('useHealth', () => {
   });
 
   it('returns degraded data and isError=false on degraded status', async () => {
-    const mockFetch = makeMockFetch({ status: 'degraded', fibaro: 'unreachable' });
+    const mockFetch = makeMockFetch({ status: 'degraded', fibaro: 'unreachable' }, false);
+    vi.stubGlobal('fetch', mockFetch);
+
+    const queryClient = makeQueryClient();
+    const { result } = renderHook(() => useHealth(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual({ status: 'degraded', fibaro: 'unreachable' });
+    expect(result.current.isError).toBe(false);
+  });
+
+  it('returns degraded data when server returns 503 with valid JSON body', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      json: () => Promise.resolve({ status: 'degraded', fibaro: 'unreachable' }),
+    });
     vi.stubGlobal('fetch', mockFetch);
 
     const queryClient = makeQueryClient();
