@@ -89,6 +89,14 @@ describe('validateActionBody', () => {
     it.each(['setValue', 'setBrightness'])('%s: returns null for 99.9 (float at boundary)', (action) => {
       expect(validateActionBody(action, { value: 99.9 })).toBeNull();
     });
+
+    it.each(['setValue', 'setBrightness'])('%s: returns null for NaN (typeof NaN === "number" but not integer)', (action) => {
+      expect(validateActionBody(action, { value: NaN })).toBeNull();
+    });
+
+    it.each(['setValue', 'setBrightness'])('%s: returns null for Infinity (typeof Infinity === "number" but not integer)', (action) => {
+      expect(validateActionBody(action, { value: Infinity })).toBeNull();
+    });
   });
 
   describe('setColor', () => {
@@ -126,6 +134,11 @@ describe('validateActionBody', () => {
 
     it('returns null when a component is 256 (just over max)', () => {
       expect(validateActionBody('setColor', { value: '256,0,0,0' })).toBeNull();
+    });
+
+    it('returns null for negative RGBW component ("-1,0,0,0")', () => {
+      // "-" is not a \d character, so the regex rejects it before numeric range check
+      expect(validateActionBody('setColor', { value: '-1,0,0,0' })).toBeNull();
     });
 
     it('returns { value: "0,0,0,0" } for all-zero RGBW', () => {
