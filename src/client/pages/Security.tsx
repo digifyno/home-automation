@@ -41,7 +41,7 @@ export default function Security() {
       </h2>
 
       {/* Status overview */}
-      <div className={`rounded-xl p-5 border mb-6 ${
+      <div aria-live="assertive" className={`rounded-xl p-5 border mb-6 ${
         alerts.length > 0 || tampered.length > 0
           ? 'bg-red-900/30 border-red-500/50'
           : 'bg-green-900/20 border-green-500/30'

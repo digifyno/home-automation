@@ -87,7 +87,7 @@ export default function Dashboard() {
       </div>
 
       {safetyAlerts > 0 && (
-        <div className="mb-6 bg-red-900/30 border border-red-500/50 rounded-xl p-4 flex items-center gap-3">
+        <div role="alert" className="mb-6 bg-red-900/30 border border-red-500/50 rounded-xl p-4 flex items-center gap-3">
           <AlertTriangle className="text-red-400" size={20} />
           <div>
             <p className="text-red-300 font-medium">Safety Alert</p>
