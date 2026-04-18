@@ -107,7 +107,7 @@ export default function Security() {
                     aria-valuenow={device.properties.batteryLevel}
                     aria-valuemin={0}
                     aria-valuemax={100}
-                    aria-label="Battery level"
+                    aria-label={`Battery level for ${device.name}`}
                     className="h-1.5 bg-gray-700 rounded-full overflow-hidden"
                   >
                     <div

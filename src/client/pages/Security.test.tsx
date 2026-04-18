@@ -116,30 +116,30 @@ describe('Security page', () => {
 
   it('shows yellow battery bar when batteryLevel is 35 (medium, 21–50%)', () => {
     mockDevices = [
-      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 35 } }),
+      makeDevice({ id: 1, name: 'Door Sensor', type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 35 } }),
     ];
     render(<Security />);
     expect(screen.getByText('35%')).toBeTruthy();
-    const bar = screen.getByRole('progressbar').querySelector('div');
+    const bar = screen.getByRole('progressbar', { name: /Battery level for Door Sensor/ }).querySelector('div');
     expect(bar?.className).toContain('bg-yellow-500');
   });
 
   it('shows red battery bar when batteryLevel is 10 (low, ≤20%)', () => {
     mockDevices = [
-      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 10 } }),
+      makeDevice({ id: 1, name: 'Door Sensor', type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 10 } }),
     ];
     render(<Security />);
     expect(screen.getByText('10%')).toBeTruthy();
-    const bar = screen.getByRole('progressbar').querySelector('div');
+    const bar = screen.getByRole('progressbar', { name: /Battery level for Door Sensor/ }).querySelector('div');
     expect(bar?.className).toContain('bg-red-500');
   });
 
   it('shows green battery bar when batteryLevel is 75 (high, >50%)', () => {
     mockDevices = [
-      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 75 } }),
+      makeDevice({ id: 1, name: 'Door Sensor', type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 75 } }),
     ];
     render(<Security />);
-    const bar = screen.getByRole('progressbar').querySelector('div');
+    const bar = screen.getByRole('progressbar', { name: /Battery level for Door Sensor/ }).querySelector('div');
     expect(bar?.className).toContain('bg-green-500');
     expect(bar?.className).not.toContain('bg-yellow-500');
     expect(bar?.className).not.toContain('bg-red-500');
@@ -147,31 +147,41 @@ describe('Security page', () => {
 
   it('shows green battery bar when batteryLevel is exactly 51 (boundary, >50)', () => {
     mockDevices = [
-      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 51 } }),
+      makeDevice({ id: 1, name: 'Door Sensor', type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 51 } }),
     ];
     render(<Security />);
-    const bar = screen.getByRole('progressbar').querySelector('div');
+    const bar = screen.getByRole('progressbar', { name: /Battery level for Door Sensor/ }).querySelector('div');
     expect(bar?.className).toContain('bg-green-500');
   });
 
   it('shows yellow battery bar when batteryLevel is exactly 50 (boundary, not green)', () => {
     mockDevices = [
-      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 50 } }),
+      makeDevice({ id: 1, name: 'Door Sensor', type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 50 } }),
     ];
     render(<Security />);
-    const bar = screen.getByRole('progressbar').querySelector('div');
+    const bar = screen.getByRole('progressbar', { name: /Battery level for Door Sensor/ }).querySelector('div');
     expect(bar?.className).toContain('bg-yellow-500');
     expect(bar?.className).not.toContain('bg-green-500');
   });
 
   it('shows red battery bar when batteryLevel is exactly 20 (boundary, not yellow)', () => {
     mockDevices = [
-      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 20 } }),
+      makeDevice({ id: 1, name: 'Door Sensor', type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 20 } }),
     ];
     render(<Security />);
-    const bar = screen.getByRole('progressbar').querySelector('div');
+    const bar = screen.getByRole('progressbar', { name: /Battery level for Door Sensor/ }).querySelector('div');
     expect(bar?.className).toContain('bg-red-500');
     expect(bar?.className).not.toContain('bg-yellow-500');
+  });
+
+  it('renders progressbars with distinct aria-labels for two devices with battery levels', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Front Door', type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 80 } }),
+      makeDevice({ id: 2, name: 'Back Door', type: 'com.fibaro.doorSensor', properties: { value: false, dead: false, batteryLevel: 30 } }),
+    ];
+    render(<Security />);
+    expect(screen.getByRole('progressbar', { name: 'Battery level for Front Door' })).toBeTruthy();
+    expect(screen.getByRole('progressbar', { name: 'Battery level for Back Door' })).toBeTruthy();
   });
 
   it('shows Device offline text when device.properties.dead is true', () => {
