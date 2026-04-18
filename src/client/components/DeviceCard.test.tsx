@@ -141,6 +141,13 @@ describe('DeviceCard', () => {
     expect(label.includes('Turn on') || label.includes('Turn off')).toBe(true);
   });
 
+  it('renders toggle button for colorController device type', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.colorController' })} />);
+    const btn = screen.getByRole('button');
+    const label = btn.getAttribute('aria-label') ?? '';
+    expect(label.includes('Turn on') || label.includes('Turn off')).toBe(true);
+  });
+
   it('shows On text when device is on (non-dead, non-numeric)', () => {
     render(<DeviceCard device={makeDevice({ properties: { value: true, dead: false } })} />);
     expect(screen.getByText('On')).toBeTruthy();
