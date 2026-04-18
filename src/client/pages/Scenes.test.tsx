@@ -45,10 +45,25 @@ describe('Scenes page', () => {
     expect(container.querySelector('.animate-spin')).toBeTruthy();
   });
 
+  it('loading spinner has role status and aria-label', () => {
+    mockIsLoading = true;
+    const { container } = render(<Scenes />);
+    const spinner = container.querySelector('.animate-spin');
+    expect(spinner?.getAttribute('role')).toBe('status');
+    expect(spinner?.getAttribute('aria-label')).toBe('Loading');
+  });
+
   it('shows error state when isError is true', () => {
     mockIsError = true;
     render(<Scenes />);
     expect(screen.getByText('Failed to load scenes')).toBeTruthy();
+  });
+
+  it('error banner has role alert', () => {
+    mockIsError = true;
+    render(<Scenes />);
+    const alert = document.querySelector('[role="alert"]');
+    expect(alert).toBeTruthy();
   });
 
   it('renders only enabled scenes', () => {

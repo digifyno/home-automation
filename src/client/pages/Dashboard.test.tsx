@@ -67,10 +67,25 @@ describe('Dashboard page', () => {
     expect(container.querySelector('.animate-spin')).toBeTruthy();
   });
 
+  it('loading spinner has role status and aria-label', () => {
+    mockIsLoading = true;
+    const { container } = render(<Dashboard />);
+    const spinner = container.querySelector('.animate-spin');
+    expect(spinner?.getAttribute('role')).toBe('status');
+    expect(spinner?.getAttribute('aria-label')).toBe('Loading');
+  });
+
   it('shows error state when isError is true', () => {
     mockIsError = true;
     render(<Dashboard />);
     expect(screen.getByText('Failed to load devices')).toBeTruthy();
+  });
+
+  it('error banner has role alert', () => {
+    mockIsError = true;
+    render(<Dashboard />);
+    const alert = document.querySelector('[role="alert"]');
+    expect(alert).toBeTruthy();
   });
 
   it('counts only lights/dimmers that are on in the lights stat', () => {

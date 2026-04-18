@@ -64,10 +64,25 @@ describe('Lights page', () => {
     expect(container.querySelector('.animate-spin')).toBeTruthy();
   });
 
+  it('loading spinner has role status and aria-label', () => {
+    mockIsLoading = true;
+    const { container } = render(<Lights />);
+    const spinner = container.querySelector('.animate-spin');
+    expect(spinner?.getAttribute('role')).toBe('status');
+    expect(spinner?.getAttribute('aria-label')).toBe('Loading');
+  });
+
   it('shows error state when isError is true', () => {
     mockIsError = true;
     render(<Lights />);
     expect(screen.getByText('Failed to load devices')).toBeTruthy();
+  });
+
+  it('error banner has role alert', () => {
+    mockIsError = true;
+    render(<Lights />);
+    const alert = document.querySelector('[role="alert"]');
+    expect(alert).toBeTruthy();
   });
 
   it('shows all light devices when no room filter selected', () => {
