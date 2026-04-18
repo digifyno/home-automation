@@ -90,7 +90,7 @@ ALLOWED_ORIGIN=
 ## Design Guidelines
 
 - **Modern and clean**: Use a dark theme with accent colors for status indicators
-- **Responsive**: Must work well on desktop, tablet, and mobile
+- **Responsive**: Must work well on desktop, tablet, and mobile. The sidebar is always visible on `md+` breakpoints; on mobile it slides in via a hamburger toggle (`Menu`/`X` icons) with a backdrop overlay that closes it on tap
 - **Real-time**: Show live device states, auto-refresh data
 - **Intuitive**: Group devices by room, use clear icons, show at-a-glance status
 - **Performance**: Minimize API calls with smart caching and WebSocket updates where possible
