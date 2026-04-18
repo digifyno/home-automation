@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Lightbulb, Thermometer, Shield, Zap, PlayCircle } from 'lucide-react';
+import { Home, Lightbulb, Thermometer, Shield, Zap, PlayCircle, Menu, X } from 'lucide-react';
 import { useHealth } from './hooks/useHealth.ts';
 import Dashboard from './pages/Dashboard.tsx';
 import Lights from './pages/Lights.tsx';
@@ -21,6 +21,7 @@ const navItems: { id: Page; label: string; icon: React.ReactNode }[] = [
 
 export default function App() {
   const [page, setPage] = useState<Page>('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: health, isError: healthError, isLoading: healthLoading } = useHealth();
   const healthStatus: 'live' | 'degraded' | 'offline' | 'checking' =
     healthLoading ? 'checking'
@@ -50,8 +51,30 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-950 flex">
+      {/* Hamburger button (mobile only) */}
+      <button
+        onClick={() => setSidebarOpen(o => !o)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-900 rounded-lg text-gray-400 hover:text-white"
+        aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+      >
+        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Backdrop (mobile only) */}
+      {sidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-30 bg-black/50"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <nav className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+      <nav className={`
+        fixed md:static inset-y-0 left-0 z-40
+        w-64 bg-gray-900 border-r border-gray-800 flex flex-col
+        transform transition-transform duration-200
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
+      `}>
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -67,7 +90,7 @@ export default function App() {
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setPage(item.id)}
+              onClick={() => { setPage(item.id); setSidebarOpen(false); }}
               aria-current={page === item.id ? 'page' : undefined}
               className={`w-full flex items-center gap-3 px-6 py-3 text-sm transition-colors ${
                 page === item.id
@@ -89,7 +112,7 @@ export default function App() {
       </nav>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto md:ml-0">
         {pages[page]}
       </main>
     </div>
