@@ -66,6 +66,7 @@ export default function Scenes() {
             <button
               onClick={() => handleExecute(scene.id)}
               disabled={pendingScenes.has(scene.id)}
+              aria-label={`Run ${scene.name}`}
               className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
               {pendingScenes.has(scene.id) ? <Loader2 size={16} className="animate-spin" /> : <PlayCircle size={16} />}
