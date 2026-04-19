@@ -159,4 +159,47 @@ describe('App navigation', () => {
     const dot = container.querySelector('.w-2.h-2.rounded-full');
     expect(dot?.className).toContain('bg-red-400');
   });
+
+  it('hamburger button has aria-label Open menu when sidebar is closed', () => {
+    renderApp();
+    const btn = screen.getByRole('button', { name: 'Open menu' });
+    expect(btn).toBeTruthy();
+  });
+
+  it('clicking hamburger changes aria-label to Close menu', () => {
+    renderApp();
+    const btn = screen.getByRole('button', { name: 'Open menu' });
+    fireEvent.click(btn);
+    expect(screen.getByRole('button', { name: 'Close menu' })).toBeTruthy();
+  });
+
+  it('clicking hamburger twice reverts aria-label to Open menu', () => {
+    renderApp();
+    const btn = screen.getByRole('button', { name: 'Open menu' });
+    fireEvent.click(btn);
+    fireEvent.click(screen.getByRole('button', { name: 'Close menu' }));
+    expect(screen.getByRole('button', { name: 'Open menu' })).toBeTruthy();
+  });
+
+  it('backdrop is rendered when sidebar is open', () => {
+    const { container } = renderApp();
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+    const backdrop = container.querySelector('.bg-black\\/50');
+    expect(backdrop).toBeTruthy();
+  });
+
+  it('clicking backdrop closes sidebar (aria-label reverts to Open menu)', () => {
+    const { container } = renderApp();
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+    const backdrop = container.querySelector('.bg-black\\/50') as HTMLElement;
+    fireEvent.click(backdrop);
+    expect(screen.getByRole('button', { name: 'Open menu' })).toBeTruthy();
+  });
+
+  it('clicking a nav item while sidebar is open closes sidebar', () => {
+    renderApp();
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+    fireEvent.click(screen.getByRole('button', { name: /lights/i }));
+    expect(screen.getByRole('button', { name: 'Open menu' })).toBeTruthy();
+  });
 });
