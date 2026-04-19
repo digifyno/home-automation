@@ -32,6 +32,22 @@ function makeLight(overrides: Partial<FibaroDevice> & { properties?: Partial<Fib
   };
 }
 
+function makeDimmer(overrides: Partial<FibaroDevice> & { properties?: Partial<FibaroDevice['properties']> } = {}): FibaroDevice {
+  const { properties: propOverrides, ...rest } = overrides;
+  return {
+    id: 2,
+    name: 'Dimmer 1',
+    type: 'com.fibaro.dimmer2',
+    roomID: 1,
+    parentId: 0,
+    enabled: true,
+    visible: true,
+    properties: { value: false, dead: false, ...propOverrides },
+    interfaces: [],
+    ...rest,
+  };
+}
+
 function makeRoom(overrides: Partial<FibaroRoom> = {}): FibaroRoom {
   return {
     id: 1,
@@ -291,6 +307,44 @@ describe('Lights page', () => {
     ];
     render(<Lights />);
     expect(screen.getByText('Dimmer Light')).toBeTruthy();
+  });
+
+  it('dimmer2 device appears in the Lights page device list', () => {
+    mockDevices = [makeDimmer({ name: 'Bedroom Dimmer' })];
+    render(<Lights />);
+    expect(screen.getByText('Bedroom Dimmer')).toBeTruthy();
+  });
+
+  it('colorController device appears in the Lights page device list', () => {
+    mockDevices = [makeLight({ type: 'com.fibaro.colorController', name: 'RGB Strip' })];
+    render(<Lights />);
+    expect(screen.getByText('RGB Strip')).toBeTruthy();
+  });
+
+  it('dimmer devices are counted in N of M on subtitle', () => {
+    mockDevices = [
+      makeLight({ id: 1, properties: { value: true, dead: false } }),
+      makeDimmer({ id: 2, properties: { value: true, dead: false } }),
+    ];
+    render(<Lights />);
+    expect(screen.getByText('2 of 2 on')).toBeTruthy();
+  });
+
+  it('room with only a dimmer device appears in the room filter', () => {
+    mockDevices = [makeDimmer({ id: 1, roomID: 2, properties: { value: false, dead: false } })];
+    mockRooms = [makeRoom({ id: 2, name: 'Bedroom' })];
+    render(<Lights />);
+    expect(screen.getByText('Bedroom')).toBeTruthy();
+  });
+
+  it('All Off calls mutate for an on dimmer device', () => {
+    mockDevices = [makeDimmer({ id: 2, properties: { value: true, dead: false } })];
+    render(<Lights />);
+    fireEvent.click(screen.getByText('All Off'));
+    expect(mockMutate).toHaveBeenCalledWith(
+      { id: 2, action: 'turnOff' },
+      expect.any(Object),
+    );
   });
 
   it('subtitle still shows global lights-on count when a room filter is active', () => {
