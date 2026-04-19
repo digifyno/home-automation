@@ -182,4 +182,15 @@ describe('DeviceCard', () => {
     render(<DeviceCard device={makeDevice({ type: 'com.fibaro.temperatureSensor', properties: { value: 21.5, dead: false } })} />);
     expect(screen.getByText('On')).toBeTruthy();
   });
+
+  it('shows On text when binarySwitch value is numeric 1 (Fibaro on state)', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.binarySwitch', properties: { value: 1, dead: false } })} />);
+    expect(screen.getByText('On')).toBeTruthy();
+  });
+
+  it('calls action.mutate with turnOff when binarySwitch value is numeric 1 and toggle clicked', () => {
+    render(<DeviceCard device={makeDevice({ id: 5, type: 'com.fibaro.binarySwitch', properties: { value: 1, dead: false } })} />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(mockMutate).toHaveBeenCalledWith({ id: 5, action: 'turnOff' });
+  });
 });
