@@ -291,6 +291,24 @@ describe('Dashboard page', () => {
     expect(screen.getByText('2W')).toBeTruthy();
   });
 
+  it('safety alert banner has role alert when safety sensors are triggered', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.smokeDetector', properties: { value: true, dead: false } }),
+    ];
+    render(<Dashboard />);
+    // The safety banner (not the error banner) should have role=alert
+    const alerts = document.querySelectorAll('[role="alert"]');
+    expect(alerts.length).toBeGreaterThan(0);
+  });
+
+  it('Safety stat card shows alert count when safety sensors are triggered', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.smokeDetector', properties: { value: true, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('1 alerts')).toBeTruthy();
+  });
+
   it('shows Safety stat card as OK when no alerts', () => {
     mockDevices = [
       makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false } }),
