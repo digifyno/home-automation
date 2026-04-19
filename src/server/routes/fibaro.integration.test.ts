@@ -260,6 +260,25 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(res.body).toEqual({ error: 'Invalid action body' });
   });
 
+  it.each(['toggle', 'open', 'close'])('returns 200 for binary action: %s', async (action) => {
+    mockPost.mockResolvedValueOnce({ data: { result: 'ok' } });
+    const res = await request(app)
+      .post(`/api/fibaro/devices/10/action/${action}`)
+      .set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ result: 'ok' });
+    expect(mockPost).toHaveBeenCalledWith(`/api/devices/10/action/${action}`, {});
+  });
+
+  it.each(['toggle', 'open', 'close'])('returns 502 when Fibaro post fails for action: %s', async (action) => {
+    mockPost.mockRejectedValueOnce(new Error('fibaro down'));
+    const res = await request(app)
+      .post(`/api/fibaro/devices/10/action/${action}`)
+      .set(AUTH);
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ error: 'Failed to execute device action' });
+  });
+
   it('does NOT invalidate device cache when Fibaro post fails', async () => {
     // Populate cache first
     mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Cached' }] });
