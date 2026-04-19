@@ -201,4 +201,22 @@ describe('Scenes page', () => {
     const btn = screen.getByText('Run Scene').closest('button') as HTMLButtonElement;
     expect(btn.disabled).toBe(false);
   });
+
+  it('Run Scene button aria-label contains scene name', () => {
+    mockScenes = [makeScene({ id: 1, name: 'Morning Routine' })];
+    render(<Scenes />);
+    // getByRole with name asserts the accessible name (aria-label)
+    const btn = screen.getByRole('button', { name: 'Run Morning Routine' });
+    expect(btn).toBeTruthy();
+  });
+
+  it('each Run Scene button has a distinct aria-label when multiple scenes are present', () => {
+    mockScenes = [
+      makeScene({ id: 1, name: 'Morning Routine' }),
+      makeScene({ id: 2, name: 'Evening Mode' }),
+    ];
+    render(<Scenes />);
+    expect(screen.getByRole('button', { name: 'Run Morning Routine' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Run Evening Mode' })).toBeTruthy();
+  });
 });
