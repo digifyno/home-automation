@@ -130,7 +130,7 @@ export default function Dashboard() {
         <StatCard
           icon={<Shield size={20} />}
           label="Safety"
-          value={safetyAlerts === 0 ? 'OK' : `${safetyAlerts} alerts`}
+          value={safetyAlerts === 0 ? 'OK' : `${safetyAlerts} alert${safetyAlerts !== 1 ? 's' : ''}`}
           sub="security sensors"
           color={safetyAlerts > 0 ? 'text-red-400' : 'text-green-400'}
         />

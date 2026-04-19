@@ -306,7 +306,16 @@ describe('Dashboard page', () => {
       makeDevice({ id: 1, type: 'com.fibaro.smokeDetector', properties: { value: true, dead: false } }),
     ];
     render(<Dashboard />);
-    expect(screen.getByText('1 alerts')).toBeTruthy();
+    expect(screen.getByText('1 alert')).toBeTruthy();
+  });
+
+  it('Safety stat card uses plural for multiple alerts', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.smokeDetector', properties: { value: true, dead: false } }),
+      makeDevice({ id: 2, type: 'com.fibaro.smokeDetector', properties: { value: true, dead: false } }),
+    ];
+    render(<Dashboard />);
+    expect(screen.getByText('2 alerts')).toBeTruthy();
   });
 
   it('shows Safety stat card as OK when no alerts', () => {
