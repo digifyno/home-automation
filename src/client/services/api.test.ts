@@ -184,6 +184,27 @@ describe('getEnergy', () => {
   });
 });
 
+describe('fetchJSON network error path', () => {
+  it('getRooms rejects when fetch throws a network error', async () => {
+    mockFetch.mockRejectedValue(new Error('Network request failed'));
+    await expect(api.getRooms()).rejects.toThrow('Network request failed');
+  });
+});
+
+describe('deviceAction network error path', () => {
+  it('rejects when fetch throws', async () => {
+    mockFetch.mockRejectedValue(new Error('timeout'));
+    await expect(api.deviceAction(42, 'turnOn')).rejects.toThrow('timeout');
+  });
+});
+
+describe('executeScene network error path', () => {
+  it('rejects when fetch throws', async () => {
+    mockFetch.mockRejectedValue(new Error('timeout'));
+    await expect(api.executeScene(7)).rejects.toThrow('timeout');
+  });
+});
+
 describe('executeScene', () => {
   it('posts to correct URL', async () => {
     mockFetch.mockReturnValue(makeFetchResponse(true, 200, 'OK', {}));
