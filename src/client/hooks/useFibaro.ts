@@ -22,13 +22,6 @@ export function useEnergy() {
   return useQuery({ queryKey: ['energy'], queryFn: api.getEnergy, refetchInterval: 30000 });
 }
 
-export function useDevice(id: number) {
-  return useQuery({
-    queryKey: ['device', id],
-    queryFn: () => api.getDevice(id),
-  });
-}
-
 export function useDeviceAction() {
   const queryClient = useQueryClient();
   return useMutation({
