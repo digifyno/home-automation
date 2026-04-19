@@ -26,6 +26,12 @@ describe('parseDeviceId', () => {
     expect(parseDeviceId('99999999')).toBe(99999999);
   });
 
+  it('returns null for very large integer string that triggers float precision loss', () => {
+    // parseInt('9999999999999999', 10) → 10000000000000000 due to float precision
+    // (10000000000000000).toString() !== '9999999999999999', so the guard correctly returns null
+    expect(parseDeviceId('9999999999999999')).toBeNull();
+  });
+
   it('returns null for empty string', () => {
     expect(parseDeviceId('')).toBeNull();
   });
@@ -183,6 +189,10 @@ describe('validateActionBody', () => {
 
     it('returns null when body is a string', () => {
       expect(validateActionBody('turnOn', 'on')).toBeNull();
+    });
+
+    it('returns null when body is undefined', () => {
+      expect(validateActionBody('turnOn', undefined)).toBeNull();
     });
   });
 });
