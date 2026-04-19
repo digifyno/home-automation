@@ -270,4 +270,28 @@ describe('Security page', () => {
     render(<Security />);
     expect(screen.getByText('1 alert active')).toBeTruthy();
   });
+
+  it('loading spinner has role status and aria-label', () => {
+    mockIsLoading = true;
+    const { container } = render(<Security />);
+    const spinner = container.querySelector('.animate-spin');
+    expect(spinner?.getAttribute('role')).toBe('status');
+    expect(spinner?.getAttribute('aria-label')).toBe('Loading');
+  });
+
+  it('error banner has role alert', () => {
+    mockIsError = true;
+    render(<Security />);
+    const alert = document.querySelector('[role="alert"]');
+    expect(alert).toBeTruthy();
+  });
+
+  it('status overview panel has aria-live assertive', () => {
+    mockDevices = [
+      makeDevice({ id: 1, type: 'com.fibaro.doorSensor', properties: { value: false, dead: false } }),
+    ];
+    render(<Security />);
+    const panel = document.querySelector('[aria-live="assertive"]');
+    expect(panel).toBeTruthy();
+  });
 });

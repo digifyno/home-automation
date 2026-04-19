@@ -250,4 +250,19 @@ describe('Climate page', () => {
     // room name cell is blank — no crash
     expect(screen.getByText('Humidity Sensors')).toBeTruthy();
   });
+
+  it('loading spinner has role status and aria-label', () => {
+    mockIsLoading = true;
+    const { container } = render(<Climate />);
+    const spinner = container.querySelector('.animate-spin');
+    expect(spinner?.getAttribute('role')).toBe('status');
+    expect(spinner?.getAttribute('aria-label')).toBe('Loading');
+  });
+
+  it('error banner has role alert', () => {
+    mockIsError = true;
+    render(<Climate />);
+    const alert = document.querySelector('[role="alert"]');
+    expect(alert).toBeTruthy();
+  });
 });
