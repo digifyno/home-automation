@@ -38,6 +38,18 @@ describe('parseDeviceId', () => {
     expect(parseDeviceId('01')).toBeNull();
     expect(parseDeviceId('007')).toBeNull();
   });
+
+  it('returns null for string with leading plus sign ("+42")', () => {
+    expect(parseDeviceId('+42')).toBeNull();
+  });
+
+  it('returns null for whitespace-padded numeric string (" 42 ")', () => {
+    expect(parseDeviceId(' 42 ')).toBeNull();
+  });
+
+  it('returns null for hex prefix string ("0x2a")', () => {
+    expect(parseDeviceId('0x2a')).toBeNull();
+  });
 });
 
 describe('validateActionBody', () => {
