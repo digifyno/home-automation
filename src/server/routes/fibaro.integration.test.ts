@@ -19,6 +19,7 @@ vi.mock('axios', () => ({
 import fibaroRouter from './fibaro.js';
 import { invalidateCache } from '../integrations/fibaro/client.js';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 // Replicate the auth middleware from index.ts (API_TOKEN set to 'test-token' in test-setup.ts)
 const API_TOKEN = process.env.API_TOKEN!;
@@ -33,6 +34,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 }
 
 const app = express();
+app.use(helmet());
 app.use(express.json());
 app.use('/api/fibaro', requireAuth);
 app.use('/api/fibaro', fibaroRouter);
@@ -134,6 +136,15 @@ describe('GET /api/fibaro/devices', () => {
       .set(AUTH);
     expect(res.status).toBe(502);
     expect(res.body).toEqual({ error: 'Failed to fetch devices from Fibaro' });
+  });
+
+  it('response includes Helmet security headers', async () => {
+    mockGet.mockResolvedValueOnce({ data: [] });
+    const res = await request(app).get('/api/fibaro/devices').set(AUTH);
+    expect(res.status).toBe(200);
+    // Helmet sets these by default:
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('SAMEORIGIN');
   });
 });
 
