@@ -1,6 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { type Request, type Response } from 'express';
+import helmet from 'helmet';
 
 // vi.hoisted ensures mocks are available inside the vi.mock factory (hoisted above imports)
 const mockGet = vi.hoisted(() => vi.fn());
@@ -19,6 +20,7 @@ import { fibaroClient } from '../integrations/fibaro/client.js';
 
 // Build a minimal express app with just the health route (no requireAuth — intentional by design)
 const app = express();
+app.use(helmet());
 app.get('/api/health', async (_req: Request, res: Response) => {
   try {
     await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
@@ -50,6 +52,13 @@ describe('GET /api/health', () => {
     expect(res.body.status).toBe('degraded');
     expect(res.body.fibaro).toBe('unreachable');
     expect(res.body.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it('response includes Helmet security headers', async () => {
+    mockGet.mockResolvedValueOnce({ data: {} });
+    const res = await request(app).get('/api/health');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('SAMEORIGIN');
   });
 
   // Intentional design: /api/health is public and does not require an Authorization header.
