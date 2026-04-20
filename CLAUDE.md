@@ -77,7 +77,7 @@ FIBARO_PASSWORD=<set-in-env>
 NETATMO_CLIENT_ID=<set-in-env>
 NETATMO_CLIENT_SECRET=<set-in-env>
 NETATMO_REFRESH_TOKEN=<set-in-env>
-PORT=3000
+PORT=4018
 API_TOKEN=<generate-with-openssl-rand-hex-32>
 VITE_API_TOKEN=<same-value-as-API_TOKEN>
 ALLOWED_ORIGIN=
@@ -86,6 +86,8 @@ ALLOWED_ORIGIN=
 `API_TOKEN` is required — the server will refuse to start without it. `VITE_API_TOKEN` must match `API_TOKEN`; it is embedded into the frontend bundle at build time and sent as a `Bearer` token on all `/api/fibaro` requests.
 
 `FIBARO_URL`, `FIBARO_USERNAME`, and `FIBARO_PASSWORD` are also required — the Fibaro client validates all three on startup and exits with a fatal error if any are missing.
+
+`PORT` is optional and defaults to `4018` when unset.
 
 `ALLOWED_ORIGIN` is optional. When unset (or empty), CORS is configured to same-origin only (cross-origin requests are blocked by the browser). Set it to a specific origin (e.g., `http://localhost:5173`) to allow cross-origin requests from that origin during development.
 
@@ -107,6 +109,8 @@ ALLOWED_ORIGIN=
 - Write tests for integration connectors, middleware behaviour (e.g. rate limiting, auth), and critical UI logic
 - Tests use **vitest**; all client `.tsx` tests (`src/client/**/*.test.tsx`) and hook `.ts` tests (`src/client/hooks/**/*.test.ts`) run in the `jsdom` environment (configured via `environmentMatchGlobs` in `vitest.config.ts`)
 - Route integration tests live in `src/server/routes/*.integration.test.ts` and use `supertest` against a minimal Express app; middleware (auth, rate limiter) is wired up inline so the tests reflect real request flow
+- `src/test-setup.ts` is loaded as a `setupFiles` entry in `vitest.config.ts` before all test modules. It sets `FIBARO_URL`, `FIBARO_USERNAME`, `FIBARO_PASSWORD`, and `API_TOKEN` environment variables so integration and unit tests can import server modules without triggering the startup validation guard that calls `process.exit(1)` when env vars are missing.
+- A global Express error handler in `src/server/index.ts` catches `entity.parse.failed` errors (from `express.json()`) and returns `400 { error: 'Invalid JSON body' }`. POST endpoints do not need to handle malformed JSON themselves.
 
 ## Allowed Domains
 
