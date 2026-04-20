@@ -49,6 +49,15 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
+// JSON parse error handler (mirrors index.ts lines 61–67)
+app.use((err: { status?: number; type?: string }, _req: Request, res: Response, next: NextFunction) => {
+  if (err.type === 'entity.parse.failed') {
+    res.status(400).json({ error: 'Invalid JSON body' });
+    return;
+  }
+  next(err);
+});
+
 // /api/* 404 catch-all — production only (lines 62–65)
 app.use('/api', (_req, res) => {
   res.status(404).json({ error: 'Not found' });
@@ -73,6 +82,16 @@ describe('production-mode /api/* 404 catch-all', () => {
     mockGet.mockResolvedValueOnce({ data: [] });
     const res = await request(app).get('/api/fibaro/devices').set(AUTH);
     expect(res.status).toBe(200);
+  });
+
+  it('returns 400 JSON for malformed JSON body on fibaro routes', async () => {
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setValue')
+      .set(AUTH)
+      .set('Content-Type', 'application/json')
+      .send('{invalid json}');
+    expect(res.status).toBe(400);
+    expect(res.body).toMatchObject({ error: expect.any(String) });
   });
 });
 
