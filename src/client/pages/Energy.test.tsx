@@ -108,6 +108,28 @@ describe('Energy page', () => {
     expect(heaterBar?.getAttribute('aria-valuenow')).toBe('75');
   });
 
+  it('progressbar for active consumer has aria-valuemax of 100', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Heater', properties: { value: true, dead: false, power: 750 } }),
+      makeDevice({ id: 2, name: 'Fridge', properties: { value: true, dead: false, power: 250 } }),
+    ];
+    render(<Energy />);
+    const bars = screen.getAllByRole('progressbar');
+    const heaterBar = bars.find(el => el.getAttribute('aria-label') === 'Heater power share');
+    expect(heaterBar?.getAttribute('aria-valuemax')).toBe('100');
+  });
+
+  it('progressbar for active consumer has aria-valuemin of 0', () => {
+    mockDevices = [
+      makeDevice({ id: 1, name: 'Heater', properties: { value: true, dead: false, power: 750 } }),
+      makeDevice({ id: 2, name: 'Fridge', properties: { value: true, dead: false, power: 250 } }),
+    ];
+    render(<Energy />);
+    const bars = screen.getAllByRole('progressbar');
+    const heaterBar = bars.find(el => el.getAttribute('aria-label') === 'Heater power share');
+    expect(heaterBar?.getAttribute('aria-valuemin')).toBe('0');
+  });
+
   it('does not include device with power 0 in active consumers', () => {
     mockDevices = [
       makeDevice({ id: 1, name: 'Idle Device', properties: { value: false, dead: false, power: 0 } }),
