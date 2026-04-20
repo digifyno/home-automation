@@ -347,6 +347,28 @@ describe('Lights page', () => {
     );
   });
 
+  it('dimmer at numeric brightness 50 is counted as on in the N of M on subtitle', () => {
+    mockDevices = [makeDimmer({ id: 2, properties: { value: 50, dead: false } })];
+    render(<Lights />);
+    expect(screen.getByText('1 of 1 on')).toBeTruthy();
+  });
+
+  it('All Off calls mutate for a dimmer at numeric brightness value', () => {
+    mockDevices = [makeDimmer({ id: 2, properties: { value: 50, dead: false } })];
+    render(<Lights />);
+    fireEvent.click(screen.getByText('All Off'));
+    expect(mockMutate).toHaveBeenCalledWith(
+      { id: 2, action: 'turnOff' },
+      expect.any(Object),
+    );
+  });
+
+  it('dimmer at value 0 is counted as off (0 of 1 on)', () => {
+    mockDevices = [makeDimmer({ id: 2, properties: { value: 0, dead: false } })];
+    render(<Lights />);
+    expect(screen.getByText('0 of 1 on')).toBeTruthy();
+  });
+
   it('subtitle still shows global lights-on count when a room filter is active', () => {
     mockDevices = [
       makeLight({ id: 1, roomID: 1, properties: { value: true, dead: false } }),  // Kitchen — on
