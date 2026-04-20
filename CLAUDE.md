@@ -38,6 +38,7 @@ src/
     services/       # API client services
     App.tsx         # Root component
     main.tsx        # Entry point
+  shared/           # Shared types used by both server and client
 ```
 
 ## Integrations
