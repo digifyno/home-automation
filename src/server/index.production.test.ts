@@ -2,6 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 // vi.hoisted ensures mocks are available inside the vi.mock factory (hoisted above imports)
 const mockGet = vi.hoisted(() => vi.fn());
@@ -39,6 +40,7 @@ app.use(express.json());
 
 // API routes (lines 47–49)
 app.use('/api/fibaro', requireAuth);
+app.use('/api/fibaro', rateLimit({ max: 500, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
 app.use('/api/fibaro', fibaroRouter);
 
 // /api/health — registered before the catch-all (line 51 in index.ts)
@@ -114,5 +116,32 @@ describe('production-mode /api/health before catch-all', () => {
     const res = await request(app).get('/api/health');
     expect(res.status).toBe(200);
     expect(res.body.status).toMatch(/ok|degraded/);
+  });
+});
+
+describe('production-mode rate limiter', () => {
+  const limiterApp = express();
+  limiterApp.use(helmet());
+  limiterApp.use(express.json());
+  limiterApp.use('/api/fibaro', requireAuth);
+  limiterApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
+  limiterApp.use('/api/fibaro', fibaroRouter);
+  limiterApp.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'Not found' });
+  });
+
+  beforeEach(() => {
+    mockGet.mockReset();
+    mockPost.mockReset();
+    mockGet.mockResolvedValue({ data: [] });
+    invalidateCache('/api/devices');
+  });
+
+  it('returns 429 after exceeding the limit in production middleware ordering', async () => {
+    await request(limiterApp).get('/api/fibaro/devices').set(AUTH);
+    await request(limiterApp).get('/api/fibaro/devices').set(AUTH);
+    const res = await request(limiterApp).get('/api/fibaro/devices').set(AUTH);
+    expect(res.status).toBe(429);
+    expect(res.body).toEqual({ error: 'Too many requests' });
   });
 });
