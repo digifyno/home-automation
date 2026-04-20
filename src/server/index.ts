@@ -57,6 +57,15 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
+// JSON parse error → return consistent JSON 400 response
+app.use((err: { status?: number; type?: string }, _req: Request, res: Response, next: NextFunction) => {
+  if (err.type === 'entity.parse.failed') {
+    res.status(400).json({ error: 'Invalid JSON body' });
+    return;
+  }
+  next(err);
+});
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Catch unmatched /api/* routes before serving the SPA

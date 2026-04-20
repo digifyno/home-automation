@@ -38,6 +38,13 @@ app.use(helmet());
 app.use(express.json());
 app.use('/api/fibaro', requireAuth);
 app.use('/api/fibaro', fibaroRouter);
+app.use((err: { status?: number; type?: string }, _req: Request, res: Response, next: NextFunction) => {
+  if (err.type === 'entity.parse.failed') {
+    res.status(400).json({ error: 'Invalid JSON body' });
+    return;
+  }
+  next(err);
+});
 
 const AUTH = { Authorization: 'Bearer test-token' };
 
@@ -297,6 +304,7 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
       .set('Content-Type', 'application/json')
       .send('{invalid json}');
     expect(res.status).toBe(400);
+    expect(res.body).toMatchObject({ error: expect.any(String) });
   });
 
   it('does NOT invalidate device cache when Fibaro post fails', async () => {
