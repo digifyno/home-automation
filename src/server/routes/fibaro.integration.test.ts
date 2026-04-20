@@ -290,6 +290,15 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(res.body).toEqual({ error: 'Failed to execute device action' });
   });
 
+  it('returns 400 when request body is malformed JSON', async () => {
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setValue')
+      .set(AUTH)
+      .set('Content-Type', 'application/json')
+      .send('{invalid json}');
+    expect(res.status).toBe(400);
+  });
+
   it('does NOT invalidate device cache when Fibaro post fails', async () => {
     // Populate cache first
     mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Cached' }] });
