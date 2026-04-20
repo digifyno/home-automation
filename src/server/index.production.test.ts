@@ -1,6 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { type Request, type Response, type NextFunction } from 'express';
+import helmet from 'helmet';
 
 // vi.hoisted ensures mocks are available inside the vi.mock factory (hoisted above imports)
 const mockGet = vi.hoisted(() => vi.fn());
@@ -33,6 +34,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 // Replicate production-mode route ordering from index.ts lines 47–73
 const app = express();
+app.use(helmet());
 app.use(express.json());
 
 // API routes (lines 47–49)
@@ -76,6 +78,12 @@ describe('production-mode /api/* 404 catch-all', () => {
     const res = await request(app).get('/api/unknown-endpoint');
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: 'Not found' });
+  });
+
+  it('response includes Helmet security headers', async () => {
+    const res = await request(app).get('/api/unknown-endpoint');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('SAMEORIGIN');
   });
 
   it('does not catch /api/fibaro routes with the 404 fallback', async () => {
