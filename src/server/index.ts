@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { timingSafeEqual } from 'crypto';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -20,7 +21,12 @@ if (!API_TOKEN) {
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   const auth = req.headers.authorization;
-  if (!auth || auth !== `Bearer ${API_TOKEN}`) {
+  const expected = `Bearer ${API_TOKEN}`;
+  if (
+    !auth ||
+    auth.length !== expected.length ||
+    !timingSafeEqual(Buffer.from(auth), Buffer.from(expected))
+  ) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
