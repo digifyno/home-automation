@@ -126,6 +126,13 @@ describe('production-mode rate limiter', () => {
   limiterApp.use('/api/fibaro', requireAuth);
   limiterApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
   limiterApp.use('/api/fibaro', fibaroRouter);
+  limiterApp.use((err: { status?: number; type?: string }, _req: Request, res: Response, next: NextFunction) => {
+    if (err.type === 'entity.parse.failed') {
+      res.status(400).json({ error: 'Invalid JSON body' });
+      return;
+    }
+    next(err);
+  });
   limiterApp.use('/api', (_req, res) => {
     res.status(404).json({ error: 'Not found' });
   });
@@ -135,6 +142,16 @@ describe('production-mode rate limiter', () => {
     mockPost.mockReset();
     mockGet.mockResolvedValue({ data: [] });
     invalidateCache('/api/devices');
+  });
+
+  it('returns 400 JSON for malformed JSON body on fibaro routes through the rate-limiter stack', async () => {
+    const res = await request(limiterApp)
+      .post('/api/fibaro/devices/10/action/setValue')
+      .set(AUTH)
+      .set('Content-Type', 'application/json')
+      .send('{invalid json}');
+    expect(res.status).toBe(400);
+    expect(res.body).toMatchObject({ error: expect.any(String) });
   });
 
   it('returns 429 after exceeding the limit in production middleware ordering', async () => {
