@@ -2,6 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import helmet from 'helmet';
+import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 
 // vi.hoisted ensures mocks are available inside the vi.mock factory (hoisted above imports)
@@ -36,6 +37,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 // Replicate production-mode route ordering from index.ts lines 47–73
 const app = express();
 app.use(helmet());
+app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
 app.use(express.json());
 
 // API routes (lines 47–49)
@@ -105,6 +107,23 @@ describe('production-mode /api/* 404 catch-all', () => {
   });
 });
 
+describe('CORS middleware', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+    mockPost.mockReset();
+    invalidateCache('/api/devices');
+  });
+
+  it('includes CORS allow-origin header when origin matches', async () => {
+    mockGet.mockResolvedValueOnce({ data: [] });
+    const res = await request(app)
+      .get('/api/fibaro/devices')
+      .set(AUTH)
+      .set('Origin', 'http://localhost:5173');
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
+});
+
 describe('production-mode /api/health before catch-all', () => {
   beforeEach(() => {
     mockGet.mockReset();
@@ -122,6 +141,7 @@ describe('production-mode /api/health before catch-all', () => {
 describe('production-mode rate limiter', () => {
   const limiterApp = express();
   limiterApp.use(helmet());
+  limiterApp.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
   limiterApp.use(express.json());
   limiterApp.use('/api/fibaro', requireAuth);
   limiterApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));

@@ -1,6 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { type Request, type Response, type NextFunction } from 'express';
+import cors from 'cors';
 
 // vi.hoisted ensures mocks are available inside the vi.mock factory (hoisted above imports)
 const mockGet = vi.hoisted(() => vi.fn());
@@ -35,6 +36,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 const app = express();
 app.use(helmet());
+app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
 app.use(express.json());
 app.use('/api/fibaro', requireAuth);
 app.use('/api/fibaro', fibaroRouter);
@@ -556,5 +558,25 @@ describe('GET /api/fibaro/energy', () => {
       .set(AUTH);
     expect(res.status).toBe(502);
     expect(res.body).toEqual({ error: 'Failed to fetch energy data from Fibaro' });
+  });
+});
+
+describe('CORS middleware', () => {
+  it('returns 204 with CORS headers for OPTIONS pre-flight from allowed origin', async () => {
+    const res = await request(app)
+      .options('/api/fibaro/devices')
+      .set('Origin', 'http://localhost:5173')
+      .set('Access-Control-Request-Method', 'GET')
+      .set('Access-Control-Request-Headers', 'Authorization');
+    expect(res.status).toBe(204);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
+
+  it('OPTIONS pre-flight does not return 401 (cors before auth)', async () => {
+    const res = await request(app)
+      .options('/api/fibaro/devices')
+      .set('Origin', 'http://localhost:5173')
+      .set('Access-Control-Request-Method', 'GET');
+    expect(res.status).not.toBe(401);
   });
 });
