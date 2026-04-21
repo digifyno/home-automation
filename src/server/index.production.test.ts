@@ -131,6 +131,40 @@ describe('CORS middleware', () => {
       .set('Origin', 'http://attacker.example.com');
     expect(res.headers['access-control-allow-origin']).toBeUndefined();
   });
+
+  it('OPTIONS pre-flight does not return 401 (cors registered before auth)', async () => {
+    const res = await request(app)
+      .options('/api/fibaro/devices')
+      .set('Origin', 'http://localhost:5173')
+      .set('Access-Control-Request-Method', 'GET');
+    expect(res.status).not.toBe(401);
+    expect(res.status).toBe(204);
+  });
+});
+
+describe('CORS with origin: false (ALLOWED_ORIGIN unset)', () => {
+  const noOriginApp = express();
+  noOriginApp.use(helmet());
+  noOriginApp.use(cors({ origin: false }));
+  noOriginApp.use(express.json());
+  noOriginApp.use('/api/fibaro', requireAuth);
+  noOriginApp.use('/api/fibaro', rateLimit({ max: 500, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
+  noOriginApp.use('/api/fibaro', fibaroRouter);
+
+  beforeEach(() => {
+    mockGet.mockReset();
+    mockPost.mockReset();
+    invalidateCache('/api/devices');
+  });
+
+  it('does not include CORS allow-origin header when ALLOWED_ORIGIN is unset', async () => {
+    mockGet.mockResolvedValueOnce({ data: [] });
+    const res = await request(noOriginApp)
+      .get('/api/fibaro/devices')
+      .set(AUTH)
+      .set('Origin', 'http://localhost:5173');
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+  });
 });
 
 describe('production-mode /api/health before catch-all', () => {
