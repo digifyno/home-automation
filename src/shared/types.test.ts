@@ -129,4 +129,8 @@ describe('isDeviceOn', () => {
   it('returns false when value is string \'0\'', () => {
     expect(isDeviceOn(makeDevice('0'))).toBe(false);
   });
+
+  it('returns false for unknown string "on"', () => {
+    expect(isDeviceOn(makeDevice('on'))).toBe(false);
+  });
 });
