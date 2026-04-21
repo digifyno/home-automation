@@ -109,6 +109,7 @@ ALLOWED_ORIGIN=
 - Write tests for integration connectors, middleware behaviour (e.g. rate limiting, auth), and critical UI logic
 - Tests use **vitest**; all client `.tsx` tests (`src/client/**/*.test.tsx`) and hook `.ts` tests (`src/client/hooks/**/*.test.ts`) run in the `jsdom` environment (configured via `environmentMatchGlobs` in `vitest.config.ts`)
 - Route integration tests live in `src/server/routes/*.integration.test.ts` and use `supertest` against a minimal Express app; middleware (auth, rate limiter) is wired up inline so the tests reflect real request flow
+- `src/server/index.production.test.ts` tests production-mode middleware ordering (Helmet, auth, rate limiter, JSON error handler, `/api/*` 404 catch-all); add tests here when changing `src/server/index.ts` middleware structure
 - `src/test-setup.ts` is loaded as a `setupFiles` entry in `vitest.config.ts` before all test modules. It sets `FIBARO_URL`, `FIBARO_USERNAME`, `FIBARO_PASSWORD`, and `API_TOKEN` environment variables so integration and unit tests can import server modules without triggering the startup validation guard that calls `process.exit(1)` when env vars are missing.
 - A global Express error handler in `src/server/index.ts` catches `entity.parse.failed` errors (from `express.json()`) and returns `400 { error: 'Invalid JSON body' }`. POST endpoints do not need to handle malformed JSON themselves.
 
