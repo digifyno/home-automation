@@ -193,4 +193,16 @@ describe('DeviceCard', () => {
     fireEvent.click(screen.getByRole('button'));
     expect(mockMutate).toHaveBeenCalledWith({ id: 5, action: 'turnOff' });
   });
+
+  it('shows Turn off label when dimmer2 is at numeric brightness value (e.g. 50)', () => {
+    render(<DeviceCard device={makeDevice({ type: 'com.fibaro.dimmer2', properties: { value: 50, dead: false } })} />);
+    const btn = screen.getByRole('button');
+    expect(btn.getAttribute('aria-label')).toContain('Turn off');
+  });
+
+  it('calls action.mutate with turnOff when dimmer2 is at numeric brightness 50 and toggle clicked', () => {
+    render(<DeviceCard device={makeDevice({ id: 3, type: 'com.fibaro.dimmer2', properties: { value: 50, dead: false } })} />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(mockMutate).toHaveBeenCalledWith({ id: 3, action: 'turnOff' });
+  });
 });
