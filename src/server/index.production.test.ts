@@ -37,7 +37,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 // Replicate production-mode route ordering from index.ts lines 47–73
 const app = express();
 app.use(helmet());
-app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
+app.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
 app.use(express.json());
 
 // API routes (lines 47–49)
@@ -122,6 +122,15 @@ describe('CORS middleware', () => {
       .set('Origin', 'http://localhost:5173');
     expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
   });
+
+  it('does NOT return CORS allow-origin header for a disallowed origin', async () => {
+    mockGet.mockResolvedValueOnce({ data: [] });
+    const res = await request(app)
+      .get('/api/fibaro/devices')
+      .set(AUTH)
+      .set('Origin', 'http://attacker.example.com');
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+  });
 });
 
 describe('production-mode /api/health before catch-all', () => {
@@ -141,7 +150,7 @@ describe('production-mode /api/health before catch-all', () => {
 describe('production-mode rate limiter', () => {
   const limiterApp = express();
   limiterApp.use(helmet());
-  limiterApp.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
+  limiterApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
   limiterApp.use(express.json());
   limiterApp.use('/api/fibaro', requireAuth);
   limiterApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));

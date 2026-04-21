@@ -36,7 +36,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 const app = express();
 app.use(helmet());
-app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
+app.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
 app.use(express.json());
 app.use('/api/fibaro', requireAuth);
 app.use('/api/fibaro', fibaroRouter);
@@ -578,5 +578,14 @@ describe('CORS middleware', () => {
       .set('Origin', 'http://localhost:5173')
       .set('Access-Control-Request-Method', 'GET');
     expect(res.status).not.toBe(401);
+  });
+
+  it('does NOT return CORS allow-origin header for a disallowed origin', async () => {
+    mockGet.mockResolvedValueOnce({ data: [] });
+    const res = await request(app)
+      .get('/api/fibaro/devices')
+      .set(AUTH)
+      .set('Origin', 'http://evil.com');
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
   });
 });

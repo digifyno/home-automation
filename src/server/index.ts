@@ -29,7 +29,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 app.use(helmet());
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN ?? false,
+  origin: process.env.ALLOWED_ORIGIN ? [process.env.ALLOWED_ORIGIN] : false,
   methods: ['GET', 'POST'],
   allowedHeaders: ['Authorization', 'Content-Type'],
 }));
