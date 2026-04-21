@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { cachedGet, fibaroClient, invalidateCache } from '../integrations/fibaro/client.js';
+import type { ActionBody } from '../../shared/types.js';
 
 const router = Router();
 
@@ -7,10 +8,6 @@ const ALLOWED_ACTIONS = new Set([
   'turnOn', 'turnOff', 'setValue', 'open', 'close',
   'toggle', 'setBrightness', 'setColor',
 ]);
-
-interface ActionBody {
-  value?: number | boolean | string;
-}
 
 export function validateActionBody(action: string, body: unknown): ActionBody | null {
   if (body === null || typeof body !== 'object' || Array.isArray(body)) return null;
