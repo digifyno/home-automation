@@ -356,6 +356,7 @@ describe('POST /api/fibaro/scenes/:id/execute', () => {
     mockPost.mockReset();
     mockGet.mockReset();
     invalidateCache('/api/scenes');
+    invalidateCache('/api/devices');
   });
 
   it('returns 400 for invalid scene ID', async () => {
@@ -430,6 +431,37 @@ describe('POST /api/fibaro/scenes/:id/execute', () => {
     // Next GET should return cached data (no new mockGet call)
     const res = await request(app).get('/api/fibaro/scenes').set(AUTH);
     expect(res.body).toEqual([{ id: 5, name: 'Morning', isRunning: false }]);
+    expect(mockGet).toHaveBeenCalledTimes(1);
+  });
+
+  it('invalidates device cache so next GET /devices returns fresh data after scene execution', async () => {
+    // Populate device cache
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Old Light', value: false }] });
+    await request(app).get('/api/fibaro/devices').set(AUTH);
+
+    // Execute scene (success)
+    mockPost.mockResolvedValueOnce({ data: { result: 'started' } });
+    await request(app).post('/api/fibaro/scenes/5/execute').set(AUTH);
+
+    // Next GET /devices should fetch fresh data (device cache was invalidated)
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Fresh Light', value: true }] });
+    const res = await request(app).get('/api/fibaro/devices').set(AUTH);
+    expect(res.body[0].name).toBe('Fresh Light');
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('does NOT invalidate device cache when scene execution fails', async () => {
+    // Populate device cache
+    mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Old Light', value: false }] });
+    await request(app).get('/api/fibaro/devices').set(AUTH);
+
+    // POST execute fails
+    mockPost.mockRejectedValueOnce(new Error('fibaro down'));
+    await request(app).post('/api/fibaro/scenes/5/execute').set(AUTH);
+
+    // Next GET /devices should return cached data (no new mockGet call)
+    const res = await request(app).get('/api/fibaro/devices').set(AUTH);
+    expect(res.body).toEqual([{ id: 1, name: 'Old Light', value: false }]);
     expect(mockGet).toHaveBeenCalledTimes(1);
   });
 });

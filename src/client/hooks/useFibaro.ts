@@ -39,6 +39,7 @@ export function useSceneExecute() {
     mutationFn: (id: number) => api.executeScene(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['scenes'] });
+      void queryClient.invalidateQueries({ queryKey: ['devices'] });
     },
   });
 }

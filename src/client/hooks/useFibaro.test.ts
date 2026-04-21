@@ -115,7 +115,7 @@ describe('useSceneExecute', () => {
     expect(mockExecuteScene).toHaveBeenCalledWith(7);
   });
 
-  it('invalidates scenes query on success', async () => {
+  it('invalidates scenes and devices queries on success', async () => {
     mockExecuteScene.mockResolvedValue({});
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
@@ -129,6 +129,7 @@ describe('useSceneExecute', () => {
     });
 
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['scenes'] });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['devices'] });
   });
 
   it('sets isError=true when api.executeScene rejects', async () => {

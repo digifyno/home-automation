@@ -121,6 +121,7 @@ router.post('/scenes/:id/execute', async (req, res) => {
   try {
     const response = await fibaroClient.post(`/api/scenes/${sceneId}/action/start`);
     invalidateCache('/api/scenes');
+    invalidateCache('/api/devices');
     res.json(response.data);
   } catch (err) {
     console.error('Fibaro scene execute error:', err);
