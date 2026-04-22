@@ -67,6 +67,25 @@ describe('requireAuth middleware', () => {
       .set(AUTH);
     expect(res.status).toBe(200);
   });
+
+  it('401 response includes CORS allow-origin header for cross-origin clients', async () => {
+    const res = await request(app)
+      .get('/api/fibaro/devices')
+      .set('Origin', 'http://localhost:5173');
+    // No Authorization header — must return 401
+    expect(res.status).toBe(401);
+    // CORS must be present so the browser can read the error body
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
+
+  it('401 response with wrong token includes CORS allow-origin header', async () => {
+    const res = await request(app)
+      .get('/api/fibaro/devices')
+      .set('Authorization', 'Bearer wrong-token')
+      .set('Origin', 'http://localhost:5173');
+    expect(res.status).toBe(401);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
 });
 
 describe('rate limiter', () => {
