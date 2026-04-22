@@ -19,26 +19,17 @@ vi.mock('axios', () => ({
 // Import after mocks are registered
 import fibaroRouter from './fibaro.js';
 import { invalidateCache } from '../integrations/fibaro/client.js';
+import { createRequireAuth } from '../middleware/auth.js';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
-// Replicate the auth middleware from index.ts (API_TOKEN set to 'test-token' in test-setup.ts)
 const API_TOKEN = process.env.API_TOKEN!;
-
-function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const auth = req.headers.authorization;
-  if (!auth || auth !== `Bearer ${API_TOKEN}`) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-  next();
-}
 
 const app = express();
 app.use(helmet());
 app.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
 app.use(express.json());
-app.use('/api/fibaro', requireAuth);
+app.use('/api/fibaro', createRequireAuth(API_TOKEN));
 app.use('/api/fibaro', fibaroRouter);
 app.use((err: { status?: number; type?: string }, _req: Request, res: Response, next: NextFunction) => {
   if (err.type === 'entity.parse.failed') {
@@ -81,7 +72,7 @@ describe('requireAuth middleware', () => {
 describe('rate limiter', () => {
   const limiterApp = express();
   limiterApp.use(express.json());
-  limiterApp.use('/api/fibaro', requireAuth);
+  limiterApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
   limiterApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
   limiterApp.use('/api/fibaro', fibaroRouter);
 
@@ -103,7 +94,7 @@ describe('rate limiter', () => {
     // Use a fresh app with its own rate limiter instance so prior tests don't affect the budget
     const freshApp = express();
     freshApp.use(express.json());
-    freshApp.use('/api/fibaro', requireAuth);
+    freshApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
     freshApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
     freshApp.use('/api/fibaro', fibaroRouter);
 
