@@ -131,6 +131,16 @@ describe('CORS middleware', () => {
     expect(res.status).not.toBe(401);
     expect(res.status).toBe(204);
   });
+
+  it('returns 204 for OPTIONS POST pre-flight on action endpoint from allowed origin', async () => {
+    const res = await request(app)
+      .options('/api/fibaro/devices/42/action/turnOn')
+      .set('Origin', 'http://localhost:5173')
+      .set('Access-Control-Request-Method', 'POST')
+      .set('Access-Control-Request-Headers', 'Authorization, Content-Type');
+    expect(res.status).toBe(204);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
 });
 
 describe('CORS with origin: false (ALLOWED_ORIGIN unset)', () => {
