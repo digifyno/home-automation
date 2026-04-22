@@ -179,6 +179,14 @@ describe('production-mode /api/health before catch-all', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toMatch(/ok|degraded/);
   });
+
+  it('returns 503 from /api/health when Fibaro is unreachable', async () => {
+    mockGet.mockRejectedValueOnce(new Error('connect ECONNREFUSED'));
+    const res = await request(app).get('/api/health');
+    expect(res.status).toBe(503);
+    expect(res.body.status).toBe('degraded');
+    expect(res.body.fibaro).toBe('unreachable');
+  });
 });
 
 describe('production-mode rate limiter', () => {
