@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import { timingSafeEqual } from 'crypto';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -8,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fibaroRouter from './routes/fibaro.js';
 import { fibaroClient } from './integrations/fibaro/client.js';
+import { createRequireAuth } from './middleware/auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -17,20 +17,6 @@ const API_TOKEN = process.env.API_TOKEN;
 if (!API_TOKEN) {
   console.error('FATAL: API_TOKEN environment variable is not set');
   process.exit(1);
-}
-
-function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const auth = req.headers.authorization;
-  const expected = `Bearer ${API_TOKEN}`;
-  if (
-    !auth ||
-    auth.length !== expected.length ||
-    !timingSafeEqual(Buffer.from(auth), Buffer.from(expected))
-  ) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-  next();
 }
 
 app.use(helmet());
@@ -50,7 +36,7 @@ const fibaroLimiter = rateLimit({
 });
 
 // API routes
-app.use('/api/fibaro', requireAuth);
+app.use('/api/fibaro', createRequireAuth(API_TOKEN));
 app.use('/api/fibaro', fibaroLimiter);
 app.use('/api/fibaro', fibaroRouter);
 
