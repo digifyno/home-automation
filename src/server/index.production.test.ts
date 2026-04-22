@@ -261,4 +261,23 @@ describe('production-mode rate limiter', () => {
     expect(res3.status).toBe(429);
     expect(res3.body).toEqual({ error: 'Too many requests' });
   });
+
+  it('429 response includes CORS allow-origin header for cross-origin clients', async () => {
+    const freshApp = express();
+    freshApp.use(helmet());
+    freshApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
+    freshApp.use(express.json());
+    freshApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
+    freshApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
+    freshApp.use('/api/fibaro', fibaroRouter);
+
+    await request(freshApp).get('/api/fibaro/devices').set(AUTH).set('Origin', 'http://localhost:5173');
+    await request(freshApp).get('/api/fibaro/devices').set(AUTH).set('Origin', 'http://localhost:5173');
+    const res = await request(freshApp)
+      .get('/api/fibaro/devices')
+      .set(AUTH)
+      .set('Origin', 'http://localhost:5173');
+    expect(res.status).toBe(429);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
 });
