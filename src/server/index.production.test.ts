@@ -21,18 +21,9 @@ vi.mock('axios', () => ({
 // Import after mocks are registered
 import fibaroRouter from './routes/fibaro.js';
 import { fibaroClient, invalidateCache } from './integrations/fibaro/client.js';
+import { createRequireAuth } from './middleware/auth.js';
 
-// Replicate the auth middleware from index.ts (API_TOKEN set to 'test-token' in test-setup.ts)
 const API_TOKEN = process.env.API_TOKEN!;
-
-function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const auth = req.headers.authorization;
-  if (!auth || auth !== `Bearer ${API_TOKEN}`) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-  next();
-}
 
 // Replicate production-mode route ordering from index.ts lines 47–73
 const app = express();
@@ -41,7 +32,7 @@ app.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allo
 app.use(express.json());
 
 // API routes (lines 47–49)
-app.use('/api/fibaro', requireAuth);
+app.use('/api/fibaro', createRequireAuth(API_TOKEN));
 app.use('/api/fibaro', rateLimit({ max: 500, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
 app.use('/api/fibaro', fibaroRouter);
 
@@ -147,7 +138,7 @@ describe('CORS with origin: false (ALLOWED_ORIGIN unset)', () => {
   noOriginApp.use(helmet());
   noOriginApp.use(cors({ origin: false }));
   noOriginApp.use(express.json());
-  noOriginApp.use('/api/fibaro', requireAuth);
+  noOriginApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
   noOriginApp.use('/api/fibaro', rateLimit({ max: 500, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
   noOriginApp.use('/api/fibaro', fibaroRouter);
 
@@ -194,7 +185,7 @@ describe('production-mode rate limiter', () => {
   limiterApp.use(helmet());
   limiterApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
   limiterApp.use(express.json());
-  limiterApp.use('/api/fibaro', requireAuth);
+  limiterApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
   limiterApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
   limiterApp.use('/api/fibaro', fibaroRouter);
   limiterApp.use((err: { status?: number; type?: string }, _req: Request, res: Response, next: NextFunction) => {
@@ -239,7 +230,7 @@ describe('production-mode rate limiter', () => {
     freshApp.use(helmet());
     freshApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
     freshApp.use(express.json());
-    freshApp.use('/api/fibaro', requireAuth);
+    freshApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
     freshApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
     freshApp.use('/api/fibaro', fibaroRouter);
 
