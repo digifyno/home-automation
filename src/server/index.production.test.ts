@@ -141,6 +141,15 @@ describe('CORS middleware', () => {
     expect(res.status).toBe(204);
     expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
   });
+
+  it('401 response includes CORS allow-origin header for cross-origin clients', async () => {
+    const res = await request(app)
+      .get('/api/fibaro/devices')
+      .set('Origin', 'http://localhost:5173');
+    // No Authorization header
+    expect(res.status).toBe(401);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
 });
 
 describe('CORS with origin: false (ALLOWED_ORIGIN unset)', () => {
