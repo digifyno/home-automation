@@ -1,3 +1,9 @@
+<!-- rsi-worker-metadata
+  workerId=b81204cf-95b9-46c1-b4ec-a89f717f75b9
+  productId=dfebed56-0251-4fa8-b39f-e2c5aa1bb45a
+  scopeConfigHash=14a82b586caa2d4d
+  generatedAt=2026-04-23T15:07:12.486Z
+-->
 # Home Automation - AI Worker Instructions
 
 ## Project Overview
