@@ -77,3 +77,9 @@ describe('createRequireAuth', () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
+
+describe('createRequireAuth constructor guard', () => {
+  it('throws when token is an empty string', () => {
+    expect(() => createRequireAuth('')).toThrow('token must not be empty');
+  });
+});

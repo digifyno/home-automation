@@ -2,6 +2,7 @@ import { timingSafeEqual } from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
 
 export function createRequireAuth(token: string) {
+  if (!token) throw new Error('createRequireAuth: token must not be empty');
   const expected = `Bearer ${token}`;
   return function requireAuth(req: Request, res: Response, next: NextFunction) {
     const auth = req.headers.authorization;
