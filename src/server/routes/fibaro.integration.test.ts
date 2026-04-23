@@ -91,6 +91,7 @@ describe('requireAuth middleware', () => {
 describe('rate limiter', () => {
   const limiterApp = express();
   limiterApp.use(express.json());
+  limiterApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
   limiterApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
   limiterApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
   limiterApp.use('/api/fibaro', fibaroRouter);
@@ -129,6 +130,21 @@ describe('rate limiter', () => {
     // The 3rd authenticated request exceeds the 2-request limit
     const res3 = await request(freshApp).get('/api/fibaro/devices').set(AUTH);
     expect(res3.status).toBe(429);
+  });
+
+  it('429 response includes CORS allow-origin header for cross-origin clients', async () => {
+    const freshApp = express();
+    freshApp.use(express.json());
+    freshApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
+    freshApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
+    freshApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
+    freshApp.use('/api/fibaro', fibaroRouter);
+    mockGet.mockResolvedValue({ data: [] });
+    await request(freshApp).get('/api/fibaro/devices').set(AUTH).set('Origin', 'http://localhost:5173');
+    await request(freshApp).get('/api/fibaro/devices').set(AUTH).set('Origin', 'http://localhost:5173');
+    const res = await request(freshApp).get('/api/fibaro/devices').set(AUTH).set('Origin', 'http://localhost:5173');
+    expect(res.status).toBe(429);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
   });
 });
 
