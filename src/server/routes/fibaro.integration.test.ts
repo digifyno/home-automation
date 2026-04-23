@@ -647,6 +647,14 @@ describe('CORS middleware', () => {
     expect(res.headers['access-control-allow-origin']).toBeUndefined();
   });
 
+  it('OPTIONS pre-flight from disallowed origin does NOT return CORS allow-origin header', async () => {
+    const res = await request(app)
+      .options('/api/fibaro/devices')
+      .set('Origin', 'http://evil.com')
+      .set('Access-Control-Request-Method', 'GET');
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+  });
+
   it('returns 204 for OPTIONS POST pre-flight on action endpoint from allowed origin', async () => {
     const res = await request(app)
       .options('/api/fibaro/devices/42/action/turnOn')

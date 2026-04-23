@@ -123,6 +123,14 @@ describe('CORS middleware', () => {
     expect(res.headers['access-control-allow-origin']).toBeUndefined();
   });
 
+  it('OPTIONS pre-flight from disallowed origin does NOT return CORS allow-origin header', async () => {
+    const res = await request(app)
+      .options('/api/fibaro/devices')
+      .set('Origin', 'http://attacker.example.com')
+      .set('Access-Control-Request-Method', 'GET');
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+  });
+
   it('OPTIONS pre-flight does not return 401 (cors registered before auth)', async () => {
     const res = await request(app)
       .options('/api/fibaro/devices')
