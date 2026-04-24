@@ -11,6 +11,9 @@ import { createRequireAuth } from './middleware/auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+// Trust only the first hop (nginx) so req.ip reflects the real Tailscale client IP for per-client rate limiting.
+// Using 1 (not true) prevents spoofing via client-supplied X-Forwarded-For headers.
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 4018;
 
 const API_TOKEN = process.env.API_TOKEN;
