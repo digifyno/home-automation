@@ -207,6 +207,35 @@ describe('production-mode /api/health before catch-all', () => {
   });
 });
 
+describe('production-mode /api/health rate limiting', () => {
+  it('returns 429 after exceeding the health rate limit in the production stack', async () => {
+    const freshApp = express();
+    freshApp.use(helmet());
+    freshApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
+    freshApp.use(express.json());
+    freshApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
+    freshApp.use('/api/fibaro', rateLimit({ max: 500, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
+    freshApp.use('/api/fibaro', fibaroRouter);
+    const healthLimiter = rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } });
+    freshApp.get('/api/health', healthLimiter, async (_req, res) => {
+      try {
+        await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
+        res.json({ status: 'ok', fibaro: 'reachable', timestamp: new Date().toISOString() });
+      } catch {
+        res.status(503).json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
+      }
+    });
+    freshApp.use('/api', (_req, res) => { res.status(404).json({ error: 'Not found' }); });
+
+    mockGet.mockResolvedValue({ data: {} });
+    await request(freshApp).get('/api/health');
+    await request(freshApp).get('/api/health');
+    const res = await request(freshApp).get('/api/health');
+    expect(res.status).toBe(429);
+    expect(res.body).toEqual({ error: 'Too many requests' });
+  });
+});
+
 describe('production-mode rate limiter', () => {
   const limiterApp = express();
   limiterApp.use(helmet());
