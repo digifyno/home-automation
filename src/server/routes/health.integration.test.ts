@@ -2,6 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { type Request, type Response } from 'express';
 import helmet from 'helmet';
+import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 
 // vi.hoisted ensures mocks are available inside the vi.mock factory (hoisted above imports)
@@ -91,5 +92,28 @@ describe('GET /api/health rate limiting', () => {
     const res = await request(limitedApp).get('/api/health');
     expect(res.status).toBe(429);
     expect(res.body).toEqual({ error: 'Too many requests' });
+  });
+});
+
+describe('GET /api/health rate limiting with CORS', () => {
+  it('429 response includes CORS allow-origin header for cross-origin clients', async () => {
+    const corsApp = express();
+    corsApp.use(helmet());
+    corsApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
+    const limiter = rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } });
+    corsApp.get('/api/health', limiter, async (_req: Request, res: Response) => {
+      try {
+        await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
+        res.json({ status: 'ok', fibaro: 'reachable', timestamp: new Date().toISOString() });
+      } catch {
+        res.status(503).json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
+      }
+    });
+    mockGet.mockResolvedValue({ data: {} });
+    await request(corsApp).get('/api/health').set('Origin', 'http://localhost:5173');
+    await request(corsApp).get('/api/health').set('Origin', 'http://localhost:5173');
+    const res = await request(corsApp).get('/api/health').set('Origin', 'http://localhost:5173');
+    expect(res.status).toBe(429);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
   });
 });
