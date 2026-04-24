@@ -1,1 +1,0 @@
-{"pid":92137,"sessionId":"055b4640-0cef-49e2-bc5a-7472ec2bff35","cwd":"/Users/rsiw1/rsi-worktrees/3f949e3b","startedAt":1777018426207,"procStart":"Fri Apr 24 08:13:45 2026","version":"2.1.118","peerProtocol":1,"kind":"interactive","entrypoint":"sdk-cli","name":"code:Fix auth middleware to compare byte lengths before","updatedAt":1777018426216}
