@@ -35,6 +35,7 @@ src/
   server/           # Express.js backend API
     integrations/   # Smart home platform connectors
       fibaro/       # Fibaro HC3 integration
+    middleware/     # Express middleware
     routes/         # API route handlers
     index.ts        # Server entry point
   client/           # React frontend
