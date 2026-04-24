@@ -146,6 +146,38 @@ describe('rate limiter', () => {
     expect(res.status).toBe(429);
     expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
   });
+
+  it('cross-origin unauthenticated requests get 401+CORS headers and do not consume rate-limit budget', async () => {
+    const freshApp = express();
+    freshApp.use(express.json());
+    freshApp.use(cors({ origin: ['http://localhost:5173'], methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }));
+    freshApp.use('/api/fibaro', createRequireAuth(API_TOKEN));
+    freshApp.use('/api/fibaro', rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } }));
+    freshApp.use('/api/fibaro', fibaroRouter);
+
+    // Two unauthenticated cross-origin requests — must return 401 with CORS header and not consume budget
+    const unauth1 = await request(freshApp)
+      .get('/api/fibaro/devices')
+      .set('Origin', 'http://localhost:5173');
+    const unauth2 = await request(freshApp)
+      .get('/api/fibaro/devices')
+      .set('Origin', 'http://localhost:5173');
+    expect(unauth1.status).toBe(401);
+    expect(unauth1.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+    expect(unauth2.status).toBe(401);
+    expect(unauth2.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+
+    // Budget still full — 2 authenticated requests should succeed
+    mockGet.mockResolvedValue({ data: [] });
+    const res1 = await request(freshApp).get('/api/fibaro/devices').set(AUTH).set('Origin', 'http://localhost:5173');
+    const res2 = await request(freshApp).get('/api/fibaro/devices').set(AUTH).set('Origin', 'http://localhost:5173');
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+
+    // 3rd authenticated request exceeds the 2-request limit
+    const res3 = await request(freshApp).get('/api/fibaro/devices').set(AUTH).set('Origin', 'http://localhost:5173');
+    expect(res3.status).toBe(429);
+  });
 });
 
 describe('GET /api/fibaro/devices', () => {
