@@ -35,12 +35,20 @@ const fibaroLimiter = rateLimit({
   message: { error: 'Too many requests' },
 });
 
+const healthLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests' },
+});
+
 // API routes
 app.use('/api/fibaro', createRequireAuth(API_TOKEN));
 app.use('/api/fibaro', fibaroLimiter);
 app.use('/api/fibaro', fibaroRouter);
 
-app.get('/api/health', async (_req, res) => {
+app.get('/api/health', healthLimiter, async (_req, res) => {
   try {
     await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
     res.json({ status: 'ok', fibaro: 'reachable', timestamp: new Date().toISOString() });
