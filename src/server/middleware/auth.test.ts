@@ -76,6 +76,22 @@ describe('createRequireAuth', () => {
     expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
+
+  it('returns 401 (not throw) for same-char-length header with multi-byte Unicode chars', () => {
+    // 'Bearer test-token' is 18 chars / 18 bytes
+    // Replace last char with U+0100 (Ā, 2 UTF-8 bytes) → 18 chars but 19 bytes
+    const unicodeHeader = 'Bearer test-tokeĀ';
+    // Confirm the test assumption: same string length, different byte length
+    expect(unicodeHeader.length).toBe(`Bearer ${API_TOKEN}`.length);
+    expect(Buffer.byteLength(unicodeHeader)).not.toBe(Buffer.byteLength(`Bearer ${API_TOKEN}`));
+    const req = makeReq(unicodeHeader);
+    const res = makeRes();
+    const next = vi.fn() as unknown as NextFunction;
+    const requireAuth2 = createRequireAuth(API_TOKEN);
+    requireAuth2(req, res, next); // must not throw
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
 });
 
 describe('createRequireAuth constructor guard', () => {
