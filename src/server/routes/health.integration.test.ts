@@ -2,6 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { type Request, type Response } from 'express';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 // vi.hoisted ensures mocks are available inside the vi.mock factory (hoisted above imports)
 const mockGet = vi.hoisted(() => vi.fn());
@@ -68,5 +69,27 @@ describe('GET /api/health', () => {
     const res = await request(app).get('/api/health');
     expect(res.status).not.toBe(401);
     expect(res.status).toBe(200);
+  });
+});
+
+describe('GET /api/health rate limiting', () => {
+  it('returns 429 after exceeding the rate limit', async () => {
+    const limitedApp = express();
+    limitedApp.use(helmet());
+    const limiter = rateLimit({ max: 2, windowMs: 60000, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many requests' } });
+    limitedApp.get('/api/health', limiter, async (_req: Request, res: Response) => {
+      try {
+        await fibaroClient.get('/api/loginStatus', { timeout: 3000 });
+        res.json({ status: 'ok', fibaro: 'reachable', timestamp: new Date().toISOString() });
+      } catch {
+        res.status(503).json({ status: 'degraded', fibaro: 'unreachable', timestamp: new Date().toISOString() });
+      }
+    });
+    mockGet.mockResolvedValue({ data: {} });
+    await request(limitedApp).get('/api/health');
+    await request(limitedApp).get('/api/health');
+    const res = await request(limitedApp).get('/api/health');
+    expect(res.status).toBe(429);
+    expect(res.body).toEqual({ error: 'Too many requests' });
   });
 });
