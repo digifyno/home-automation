@@ -108,6 +108,23 @@ describe('useHealth', () => {
     expect(result.current.data).toBeUndefined();
   });
 
+  it('treats 429 rate-limit response as success with raw body (shows Offline in App)', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      json: () => Promise.resolve({ error: 'Too many requests' }),
+    });
+    vi.stubGlobal('fetch', mockFetch);
+
+    const queryClient = makeQueryClient();
+    const { result } = renderHook(() => useHealth(), { wrapper: makeWrapper(queryClient) });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    // Hook resolves with raw 429 body (no status/fibaro fields)
+    expect(result.current.data).toEqual({ error: 'Too many requests' });
+    expect(result.current.isError).toBe(false);
+  });
+
   it('configures refetchInterval of 30000', () => {
     const mockFetch = makeMockFetch({ status: 'ok', fibaro: 'reachable' });
     vi.stubGlobal('fetch', mockFetch);

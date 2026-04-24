@@ -152,6 +152,18 @@ describe('App navigation', () => {
     expect(dot?.className).toContain('bg-red-400');
   });
 
+  it('shows Offline when health data has no status field (e.g. 429 body)', () => {
+    vi.mocked(useHealth).mockReturnValueOnce({
+      data: { error: 'Too many requests' } as unknown as ReturnType<typeof useHealth>['data'],
+      isError: false,
+      isLoading: false,
+    } as unknown as ReturnType<typeof useHealth>);
+    renderApp();
+    expect(screen.getByText('Offline')).toBeTruthy();
+    expect(screen.queryByText('Live')).toBeNull();
+    expect(screen.queryByText('Degraded')).toBeNull();
+  });
+
   it('dot has bg-red-400 class when data has unknown status', () => {
     vi.mocked(useHealth).mockReturnValueOnce({ data: { status: 'unknown' as 'ok', fibaro: 'reachable' }, isError: false, isLoading: false } as unknown as ReturnType<typeof useHealth>);
     const { container } = renderApp();
