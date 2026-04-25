@@ -205,6 +205,24 @@ describe('production-mode /api/health before catch-all', () => {
     expect(res.body.status).toBe('degraded');
     expect(res.body.fibaro).toBe('unreachable');
   });
+
+  it('returns CORS allow-origin header on /api/health response for allowed origin', async () => {
+    mockGet.mockResolvedValueOnce({ data: {} });
+    const res = await request(app)
+      .get('/api/health')
+      .set('Origin', 'http://localhost:5173');
+    expect(res.status).toBe(200);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
+
+  it('does NOT return CORS allow-origin header on /api/health response for disallowed origin', async () => {
+    mockGet.mockResolvedValueOnce({ data: {} });
+    const res = await request(app)
+      .get('/api/health')
+      .set('Origin', 'http://evil.example.com');
+    expect(res.status).toBe(200);
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+  });
 });
 
 describe('production-mode /api/health rate limiting', () => {
