@@ -55,6 +55,7 @@ src/
 - **URL**: `http://192.168.1.35` (routed via Tailscale subnet routing through rsiw1)
 - **Auth**: Basic auth using environment variables `FIBARO_USERNAME` and `FIBARO_PASSWORD`
 - **Rate limit**: All `/api/fibaro` routes are protected by `fibaroLimiter` (120 req/min); exceeding the limit returns HTTP 429 `{ error: 'Too many requests' }`
+- **Proxy trust**: `app.set('trust proxy', 1)` is set at server startup so `req.ip` reflects the real Tailscale client IP (the first X-Forwarded-For hop from nginx) rather than the nginx loopback address. This is required for per-client rate limiting to work correctly. The value `1` (not `true`) prevents clients from spoofing their IP via additional X-Forwarded-For headers.
 - **API Docs**: Fibaro HC3 uses a REST API. Key endpoints (all under `/api/fibaro/` prefix on this server):
   - `GET /api/fibaro/devices` - List all devices
   - `GET /api/fibaro/devices/{id}` - Device details
