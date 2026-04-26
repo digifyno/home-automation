@@ -367,6 +367,17 @@ describe('POST /api/fibaro/devices/:id/action/:action', () => {
     expect(res.body).toMatchObject({ error: expect.any(String) });
   });
 
+  it('400 JSON parse error response includes CORS allow-origin header for cross-origin clients', async () => {
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setValue')
+      .set(AUTH)
+      .set('Content-Type', 'application/json')
+      .set('Origin', 'http://localhost:5173')
+      .send('{invalid json}');
+    expect(res.status).toBe(400);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
+
   it('does NOT invalidate device cache when Fibaro post fails', async () => {
     // Populate cache first
     mockGet.mockResolvedValueOnce({ data: [{ id: 1, name: 'Cached' }] });

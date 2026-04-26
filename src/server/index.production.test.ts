@@ -96,6 +96,17 @@ describe('production-mode /api/* 404 catch-all', () => {
     expect(res.status).toBe(400);
     expect(res.body).toMatchObject({ error: expect.any(String) });
   });
+
+  it('400 JSON parse error response includes CORS allow-origin header for cross-origin clients', async () => {
+    const res = await request(app)
+      .post('/api/fibaro/devices/10/action/setValue')
+      .set(AUTH)
+      .set('Content-Type', 'application/json')
+      .set('Origin', 'http://localhost:5173')
+      .send('{invalid json}');
+    expect(res.status).toBe(400);
+    expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
 });
 
 describe('CORS middleware', () => {
