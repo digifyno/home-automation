@@ -67,6 +67,7 @@ src/
   - `GET /api/fibaro/energy` - Energy device data
   - `GET /api/health` - Health check (unauthenticated); returns 200 when Fibaro is reachable, 503 when degraded; rate-limited to 60 req/min (`healthLimiter`)
 - **Device value types**: Binary switches report `properties.value` as a boolean (`true`/`false`). Dimmers (e.g., `com.fibaro.dimmer2`) report `properties.value` as a **number 0–99** (brightness level), not a boolean. Use `isDeviceOn` from `src/shared/types.ts` to check on/off state — it handles `boolean`, `number > 0`, `"true"`, and `"1"` uniformly.
+- **Caching**: `cachedGet` in `src/server/integrations/fibaro/client.ts` coalesces concurrent requests for the same path (inflight deduplication) and caches successful responses with per-path TTLs. `invalidateCache(path)` clears both the cache entry **and** the inflight entry for that path, and increments a generation counter so any in-progress inflight result is discarded on resolution. This prevents a call made after invalidation from receiving stale data from an already-running inflight request. Call `resetAllCaches()` in tests to reset state between cases.
 
 ### Netatmo
 

@@ -254,6 +254,34 @@ describe('cachedGet', () => {
     expect(mockGet).toHaveBeenCalledTimes(2);
   });
 
+  it('invalidateCache clears inflight so a call after invalidation starts a fresh request', async () => {
+    let resolveFirst!: (value: { data: unknown }) => void;
+    const firstRequest = new Promise<{ data: unknown }>(resolve => {
+      resolveFirst = resolve;
+    });
+    let resolveSecond!: (value: { data: unknown }) => void;
+    const secondRequest = new Promise<{ data: unknown }>(resolve => {
+      resolveSecond = resolve;
+    });
+    mockGet.mockReturnValueOnce(firstRequest);
+    mockGet.mockReturnValueOnce(secondRequest);
+
+    const promise1 = cachedGet('/api/devices');
+
+    // Invalidate while inflight — must clear the inflight entry
+    invalidateCache('/api/devices');
+
+    // This call should start a NEW fetch, not reuse the cleared inflight
+    const promise2 = cachedGet('/api/devices');
+    expect(mockGet).toHaveBeenCalledTimes(2);
+
+    resolveFirst({ data: [{ id: 1 }] });
+    resolveSecond({ data: [{ id: 2 }] });
+
+    expect(await promise1).toEqual([{ id: 1 }]);
+    expect(await promise2).toEqual([{ id: 2 }]);
+  });
+
   it('does not cache failed responses', async () => {
     invalidateCache('/api/devices');
     mockGet.mockRejectedValueOnce(new Error('timeout'));
