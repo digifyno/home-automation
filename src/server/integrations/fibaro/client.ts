@@ -67,3 +67,9 @@ export function invalidateCache(path: string): void {
   cache.delete(path);
   generations.set(path, (generations.get(path) ?? 0) + 1);
 }
+
+export function resetAllCaches(): void {
+  cache.clear();
+  inflight.clear();
+  generations.clear();
+}

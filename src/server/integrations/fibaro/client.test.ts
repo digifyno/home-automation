@@ -12,14 +12,12 @@ vi.mock('axios', () => ({
 }));
 
 // Import after mocks are registered so client.ts picks up the mocked axios
-import { cachedGet, invalidateCache } from './client.js';
+import { cachedGet, invalidateCache, resetAllCaches } from './client.js';
 
 describe('cachedGet', () => {
   beforeEach(() => {
     mockGet.mockReset();
-    // Clear cache before each test
-    invalidateCache('/api/devices');
-    invalidateCache('/api/rooms');
+    resetAllCaches();
   });
 
   afterEach(() => {
