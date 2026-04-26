@@ -65,6 +65,7 @@ export async function cachedGet<T>(path: string): Promise<T> {
 
 export function invalidateCache(path: string): void {
   cache.delete(path);
+  inflight.delete(path);
   generations.set(path, (generations.get(path) ?? 0) + 1);
 }
 
