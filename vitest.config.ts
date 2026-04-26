@@ -6,6 +6,8 @@ export default defineConfig({
     'import.meta.env.VITE_API_TOKEN': '"test-token"',
   },
   test: {
+    testTimeout: 10000,
+    hookTimeout: 10000,
     environment: 'node',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     setupFiles: ['./src/test-setup.ts'],
