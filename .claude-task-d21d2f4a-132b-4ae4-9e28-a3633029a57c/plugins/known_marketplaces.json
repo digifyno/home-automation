@@ -1,0 +1,10 @@
+{
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/Users/rsiw1/rsi-worktrees/11613df4/.claude-task-d21d2f4a-132b-4ae4-9e28-a3633029a57c/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2026-04-26T14:12:44.426Z"
+  }
+}
